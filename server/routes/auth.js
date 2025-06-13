@@ -121,6 +121,15 @@ router.post('/workspace-login', async (req, res) => {
 // Login user (legacy - for backward compatibility)
 router.post('/login', async (req, res) => {
   try {
+    // Check if database is connected
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        error: 'Database temporarily unavailable',
+        message: 'Login service is currently offline. Please try again later.',
+        demo: true
+      });
+    }
+
     const { email, password } = req.body;
     console.log(`🔐 Login attempt for: ${email}`);
 
@@ -194,6 +203,15 @@ router.post('/login', async (req, res) => {
 // Register new hotel and owner
 router.post('/register-hotel', async (req, res) => {
   try {
+    // Check if database is connected
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        error: 'Database temporarily unavailable',
+        message: 'Registration service is currently offline. Please try again later.',
+        demo: true
+      });
+    }
+
     const { fullName, companyName, email, password, employeeCount, subdomain, selectedPlan } = req.body;
 
     // Validate required fields

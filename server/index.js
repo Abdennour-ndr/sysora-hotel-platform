@@ -46,16 +46,21 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Connect to MongoDB
-const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://sysora:sysora2024@cluster0.5xvqp.mongodb.net/sysora-hotel?retryWrites=true&w=majority';
+const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://sysora:sysora123@cluster0.mongodb.net/sysora-hotel?retryWrites=true&w=majority&appName=Cluster0';
 console.log('🔗 Attempting to connect to MongoDB...');
 console.log('📍 MongoDB URI:', mongoUri.replace(/\/\/.*@/, '//***:***@')); // Hide credentials in logs
 
-mongoose.connect(mongoUri)
+mongoose.connect(mongoUri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+  socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
+})
   .then(() => {
     console.log('✅ Connected to MongoDB successfully');
   })
   .catch((error) => {
-    console.error('❌ MongoDB connection error:', error);
+    console.error('❌ MongoDB connection error:', error.message);
     console.log('⚠️ Continuing without database connection...');
     // Don't exit, continue without database
   });
