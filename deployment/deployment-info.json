@@ -1,0 +1,9 @@
+{
+  "frontendBucket": "sysora-fixed-1748818180171",
+  "websiteUrl": "http://sysora-fixed-1748818180171.s3-website-us-east-1.amazonaws.com",
+  "filesUploaded": 3,
+  "deploymentDate": "2025-06-01T22:50:15.142Z",
+  "status": "success",
+  "type": "fixed-sysora-platform",
+  "pathsFixed": true
+}

@@ -1,0 +1,175 @@
+<resources>
+    <!-- App Information -->
+    <string name="app_name">Sysora Hotel</string>
+    <string name="app_description">نظام إدارة الفنادق الذكي</string>
+    <string name="app_version">1.0.0</string>
+    <string name="app_developer">Sysora Team</string>
+    
+    <!-- Splash Screen -->
+    <string name="splash_app_name">Sysora Hotel</string>
+    <string name="splash_app_subtitle">نظام إدارة الفنادق الذكي</string>
+    <string name="splash_loading">جاري التحميل...</string>
+    
+    <!-- Authentication -->
+    <string name="login_title">تسجيل الدخول</string>
+    <string name="login_subtitle">ادخل بيانات حسابك للوصول إلى لوحة التحكم</string>
+    <string name="subdomain_label">نطاق الفندق</string>
+    <string name="subdomain_hint">اسم-الفندق</string>
+    <string name="subdomain_suffix">.sysora.com</string>
+    <string name="email_label">البريد الإلكتروني</string>
+    <string name="email_hint">admin@hotel.com</string>
+    <string name="password_label">كلمة المرور</string>
+    <string name="password_hint">••••••••</string>
+    <string name="forgot_password">نسيت كلمة المرور؟</string>
+    <string name="login_button">تسجيل الدخول</string>
+    <string name="logging_in">جاري تسجيل الدخول...</string>
+    <string name="demo_text">تريد تجربة النظام؟</string>
+    <string name="demo_fill_button">ملء البيانات التجريبية</string>
+    <string name="demo_login_button">دخول مباشر</string>
+    
+    <!-- Dashboard -->
+    <string name="dashboard_title">لوحة التحكم</string>
+    <string name="good_morning">صباح الخير</string>
+    <string name="good_afternoon">مساء الخير</string>
+    <string name="good_evening">مساء الخير</string>
+    <string name="total_rooms">إجمالي الغرف</string>
+    <string name="available_rooms">الغرف المتاحة</string>
+    <string name="today_bookings">حجوزات اليوم</string>
+    <string name="today_revenue">إيرادات اليوم</string>
+    <string name="quick_actions">إجراءات سريعة</string>
+    <string name="new_booking">حجز جديد</string>
+    <string name="manage_rooms">إدارة الغرف</string>
+    <string name="guests">النزلاء</string>
+    <string name="reports">التقارير</string>
+    <string name="today_activity">نشاط اليوم</string>
+    <string name="see_all">عرض الكل</string>
+    <string name="no_activity_today">لا توجد أنشطة اليوم</string>
+    
+    <!-- Rooms -->
+    <string name="rooms_title">إدارة الغرف</string>
+    <string name="all_rooms">الكل</string>
+    <string name="available">متاح</string>
+    <string name="occupied">مشغول</string>
+    <string name="cleaning">تنظيف</string>
+    <string name="maintenance">صيانة</string>
+    <string name="out_of_order">خارج الخدمة</string>
+    <string name="room_number">رقم الغرفة</string>
+    <string name="room_type">نوع الغرفة</string>
+    <string name="room_price">السعر</string>
+    <string name="per_night">/ ليلة</string>
+    <string name="capacity">السعة</string>
+    <string name="people">أشخاص</string>
+    <string name="size">المساحة</string>
+    <string name="square_meters">م²</string>
+    <string name="current_guest">النزيل الحالي</string>
+    <string name="no_rooms">لا توجد غرف</string>
+    <string name="add_room">إضافة غرفة</string>
+    <string name="edit_room">تعديل الغرفة</string>
+    <string name="delete_room">حذف الغرفة</string>
+    <string name="change_room_status">تغيير حالة الغرفة</string>
+    
+    <!-- Bookings -->
+    <string name="bookings_title">إدارة الحجوزات</string>
+    <string name="create_booking">إنشاء حجز</string>
+    <string name="booking_details">تفاصيل الحجز</string>
+    <string name="guest_name">اسم النزيل</string>
+    <string name="check_in_date">تاريخ الوصول</string>
+    <string name="check_out_date">تاريخ المغادرة</string>
+    <string name="nights">ليالي</string>
+    <string name="total_amount">المبلغ الإجمالي</string>
+    <string name="booking_status">حالة الحجز</string>
+    <string name="confirmed">مؤكد</string>
+    <string name="pending">في الانتظار</string>
+    <string name="cancelled">ملغي</string>
+    <string name="completed">مكتمل</string>
+    <string name="check_in">تسجيل الوصول</string>
+    <string name="check_out">تسجيل المغادرة</string>
+    <string name="cancel_booking">إلغاء الحجز</string>
+    <string name="no_bookings">لا توجد حجوزات</string>
+    
+    <!-- Guests -->
+    <string name="guests_title">إدارة النزلاء</string>
+    <string name="guest_details">تفاصيل النزيل</string>
+    <string name="full_name">الاسم الكامل</string>
+    <string name="phone_number">رقم الهاتف</string>
+    <string name="email_address">البريد الإلكتروني</string>
+    <string name="nationality">الجنسية</string>
+    <string name="id_number">رقم الهوية</string>
+    <string name="stay_history">تاريخ الإقامة</string>
+    <string name="add_guest">إضافة نزيل</string>
+    <string name="edit_guest">تعديل النزيل</string>
+    <string name="no_guests">لا يوجد نزلاء</string>
+    
+    <!-- Reports -->
+    <string name="reports_title">التقارير</string>
+    <string name="financial_report">التقرير المالي</string>
+    <string name="occupancy_report">تقرير الإشغال</string>
+    <string name="revenue_report">تقرير الإيرادات</string>
+    <string name="daily">يومي</string>
+    <string name="weekly">أسبوعي</string>
+    <string name="monthly">شهري</string>
+    <string name="yearly">سنوي</string>
+    <string name="export_report">تصدير التقرير</string>
+    <string name="print_report">طباعة التقرير</string>
+    
+    <!-- Profile -->
+    <string name="profile_title">الملف الشخصي</string>
+    <string name="account_settings">إعدادات الحساب</string>
+    <string name="hotel_settings">إعدادات الفندق</string>
+    <string name="notification_settings">إعدادات التنبيهات</string>
+    <string name="language_settings">إعدادات اللغة</string>
+    <string name="logout">تسجيل الخروج</string>
+    <string name="about_app">حول التطبيق</string>
+    <string name="contact_support">اتصل بالدعم</string>
+    <string name="privacy_policy">سياسة الخصوصية</string>
+    <string name="terms_of_service">شروط الاستخدام</string>
+    
+    <!-- Notifications -->
+    <string name="notifications_title">التنبيهات</string>
+    <string name="mark_as_read">تحديد كمقروء</string>
+    <string name="mark_all_as_read">تحديد الكل كمقروء</string>
+    <string name="no_notifications">لا توجد تنبيهات</string>
+    <string name="new_booking_notification">حجز جديد</string>
+    <string name="payment_received_notification">تم استلام دفعة</string>
+    <string name="room_service_notification">طلب خدمة غرفة</string>
+    <string name="maintenance_notification">طلب صيانة</string>
+    
+    <!-- Common Actions -->
+    <string name="save">حفظ</string>
+    <string name="cancel">إلغاء</string>
+    <string name="delete">حذف</string>
+    <string name="edit">تعديل</string>
+    <string name="view">عرض</string>
+    <string name="add">إضافة</string>
+    <string name="search">بحث</string>
+    <string name="filter">فلترة</string>
+    <string name="refresh">تحديث</string>
+    <string name="loading">جاري التحميل...</string>
+    <string name="retry">إعادة المحاولة</string>
+    <string name="ok">موافق</string>
+    <string name="yes">نعم</string>
+    <string name="no">لا</string>
+    
+    <!-- Error Messages -->
+    <string name="error_title">خطأ</string>
+    <string name="network_error">فشل في الاتصال بالخادم</string>
+    <string name="login_error">فشل في تسجيل الدخول</string>
+    <string name="invalid_credentials">بيانات تسجيل الدخول غير صحيحة</string>
+    <string name="server_error">حدث خطأ في الخادم</string>
+    <string name="unknown_error">حدث خطأ غير متوقع</string>
+    <string name="field_required">هذا الحقل مطلوب</string>
+    <string name="invalid_email">البريد الإلكتروني غير صحيح</string>
+    <string name="password_too_short">كلمة المرور قصيرة جداً</string>
+    
+    <!-- Success Messages -->
+    <string name="success_title">نجح</string>
+    <string name="login_success">تم تسجيل الدخول بنجاح</string>
+    <string name="save_success">تم الحفظ بنجاح</string>
+    <string name="delete_success">تم الحذف بنجاح</string>
+    <string name="update_success">تم التحديث بنجاح</string>
+    
+    <!-- Legal -->
+    <string name="copyright">© 2024 Sysora. جميع الحقوق محفوظة.</string>
+    <string name="powered_by">مدعوم من Sysora</string>
+    <string name="version">الإصدار</string>
+</resources>

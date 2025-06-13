@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Background color -->
+    <item android:drawable="@color/sysora_mint" />
+    
+    <!-- Logo -->
+    <item
+        android:width="120dp"
+        android:height="120dp"
+        android:drawable="@drawable/splash_logo"
+        android:gravity="center" />
+        
+    <!-- App name -->
+    <item android:gravity="center|bottom" android:bottom="100dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+        </shape>
+    </item>
+</layer-list>

@@ -1,0 +1,321 @@
+import React, { useState, useEffect } from 'react';
+import {
+  DollarSign,
+  Plus,
+  Edit,
+  Eye,
+  EyeOff,
+  Star,
+  Zap,
+  Crown,
+  Settings,
+  BarChart3
+} from 'lucide-react';
+import PlanEditorModal from '../PlanEditorModal';
+
+const PricingManagementFR = () => {
+  const [activeTab, setActiveTab] = useState('plans');
+  const [plans, setPlans] = useState([]);
+  const [features, setFeatures] = useState([]);
+  const [discounts, setDiscounts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showPlanModal, setShowPlanModal] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+
+  useEffect(() => {
+    fetchData();
+  }, [activeTab]);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('sysora_token');
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
+      if (activeTab === 'plans') {
+        const response = await fetch(`${baseUrl}/api/pricing/admin/plans`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        if (data.success) setPlans(data.data);
+      } else if (activeTab === 'features') {
+        const response = await fetch(`${baseUrl}/api/pricing/features`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        if (data.success) setFeatures(data.data);
+      } else if (activeTab === 'discounts') {
+        const response = await fetch(`${baseUrl}/api/pricing/admin/discounts`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        if (data.success) setDiscounts(data.data);
+      }
+    } catch (error) {
+      console.error('Fetch data error:', error);
+      window.showToast && window.showToast('Échec du chargement des données', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const tabs = [
+    { id: 'plans', name: 'Plans d\'Abonnement', icon: DollarSign },
+    { id: 'features', name: 'Fonctionnalités', icon: Settings },
+    { id: 'discounts', name: 'Codes de Réduction', icon: BarChart3 },
+    { id: 'analytics', name: 'Analyses', icon: BarChart3 }
+  ];
+
+  const planIcons = {
+    basic: Star,
+    standard: Zap,
+    premium: Crown,
+    enterprise: Settings
+  };
+
+  const statusColors = {
+    available: 'bg-green-100 text-green-800',
+    soon: 'bg-yellow-100 text-yellow-800',
+    planned: 'bg-gray-100 text-gray-800'
+  };
+
+  const handleEdit = (item) => {
+    setEditingItem(item);
+    if (activeTab === 'plans') setShowPlanModal(true);
+  };
+
+  const handleAdd = () => {
+    setEditingItem(null);
+    if (activeTab === 'plans') setShowPlanModal(true);
+  };
+
+  const toggleVisibility = async (planId, currentVisibility) => {
+    try {
+      const token = localStorage.getItem('sysora_token');
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
+      const response = await fetch(`${baseUrl}/api/pricing/admin/plans/${planId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          display: { isVisible: !currentVisibility }
+        })
+      });
+
+      if (response.ok) {
+        fetchData();
+        window.showToast && window.showToast('Statut d\'affichage mis à jour avec succès', 'success');
+      }
+    } catch (error) {
+      console.error('Toggle visibility error:', error);
+      window.showToast && window.showToast('Échec de la mise à jour du statut d\'affichage', 'error');
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Gestion des Tarifs et Plans</h1>
+          <p className="text-gray-600">Gérer les plans d'abonnement, fonctionnalités et codes de réduction</p>
+        </div>
+        <button
+          onClick={handleAdd}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl flex items-center space-x-2 transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Ajouter Nouveau</span>
+        </button>
+      </div>
+
+      {/* Tabs */}
+      <div className="border-b border-gray-200">
+        <nav className="flex space-x-8">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === tab.id
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <Icon className="w-4 h-4" />
+                  <span>{tab.name}</span>
+                </div>
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Content */}
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      ) : (
+        <>
+          {/* Plans Tab */}
+          {activeTab === 'plans' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              {plans.map((plan) => {
+                const Icon = planIcons[plan.slug] || Star;
+                return (
+                  <div key={plan._id} className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center`}>
+                          <Icon className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900">{plan.name}</h3>
+                          <p className="text-sm text-gray-500">{plan.slug}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => toggleVisibility(plan._id, plan.display.isVisible)}
+                          className={`p-1 rounded-lg transition-colors ${
+                            plan.display.isVisible
+                              ? 'text-green-600 hover:bg-green-50'
+                              : 'text-gray-400 hover:bg-gray-50'
+                          }`}
+                        >
+                          {plan.display.isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                        </button>
+                        <button
+                          onClick={() => handleEdit(plan)}
+                          className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600">Mensuel</span>
+                        <span className="font-semibold">{plan.pricing.monthly.amount}€</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600">Annuel</span>
+                        <div className="text-right">
+                          <span className="font-semibold">{plan.pricing.yearly.amount}€</span>
+                          {plan.yearlySavingsPercentage > 0 && (
+                            <div className="text-xs text-green-600">Économisez {plan.yearlySavingsPercentage}%</div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600">Fonctionnalités</span>
+                        <span className="text-sm font-medium">{plan.features.length}</span>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600">Statut</span>
+                        <div className="flex items-center space-x-2">
+                          {plan.display.isPopular && (
+                            <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">Populaire</span>
+                          )}
+                          <span className={`px-2 py-1 rounded-full text-xs ${
+                            plan.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                            {plan.isActive ? 'Actif' : 'Inactif'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Features Tab */}
+          {activeTab === 'features' && (
+            <div className="bg-white rounded-2xl border border-gray-200">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">Gestion des Fonctionnalités</h3>
+                <p className="text-gray-600">Gérer les fonctionnalités disponibles et leur statut</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fonctionnalité</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catégorie</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Module</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {features.map((feature) => (
+                      <tr key={feature._id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">{feature.name}</div>
+                            <div className="text-sm text-gray-500">{feature.key}</div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="text-sm text-gray-900 capitalize">{feature.category}</span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="text-sm text-gray-900 capitalize">{feature.module}</span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusColors[feature.status]}`}>
+                            {feature.status === 'available' ? 'Disponible' : feature.status === 'soon' ? 'Bientôt' : 'Planifié'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button
+                            onClick={() => handleEdit(feature)}
+                            className="text-blue-600 hover:text-blue-900 mr-3"
+                          >
+                            Modifier
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Modals */}
+          {showPlanModal && (
+            <PlanEditorModal
+              isOpen={showPlanModal}
+              onClose={() => {
+                setShowPlanModal(false);
+                setEditingItem(null);
+              }}
+              plan={editingItem}
+              onSave={() => {
+                fetchData();
+                setShowPlanModal(false);
+                setEditingItem(null);
+              }}
+            />
+          )}
+        </>
+      )}
+    </div>
+  );
+};
+
+export default PricingManagementFR;

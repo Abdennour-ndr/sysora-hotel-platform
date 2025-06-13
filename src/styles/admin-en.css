@@ -1,0 +1,352 @@
+/* ===== ENGLISH ADMIN DASHBOARD STYLES ===== */
+
+/* Mobile First Approach - English */
+.admin-sidebar-en {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 50;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.admin-sidebar-en.open {
+  transform: translateX(0);
+}
+
+/* Tablet Layout - English */
+@media (min-width: 768px) {
+  .admin-sidebar-en {
+    width: 280px;
+  }
+  
+  .admin-main-content-en {
+    padding: 1.5rem;
+  }
+}
+
+/* Desktop Layout - English */
+@media (min-width: 1024px) {
+  .admin-sidebar-en {
+    position: fixed;
+    transform: translateX(0);
+    z-index: 40;
+    transition: width 0.3s ease-in-out;
+  }
+  
+  .admin-sidebar-en.w-72 {
+    width: 18rem;
+  }
+  
+  .admin-sidebar-en.w-20 {
+    width: 5rem;
+  }
+  
+  .admin-main-content-en {
+    transition: margin-left 0.3s ease-in-out;
+    padding: 2rem;
+  }
+}
+
+/* Header Styles - English */
+.admin-header {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+/* Content Styles - English */
+.admin-content {
+  background: rgba(249, 250, 251, 0.5);
+  min-height: calc(100vh - 4rem);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.admin-section {
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .admin-section {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-section {
+    padding: 2rem;
+  }
+}
+
+/* Welcome Section - English */
+.welcome-section {
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .welcome-section {
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+}
+
+/* Cards Grid - English */
+.admin-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .admin-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-cards-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* Activity section - English */
+.admin-activity {
+  margin-top: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .admin-activity {
+    margin-top: 2rem;
+  }
+}
+
+/* Sidebar Scrolling - English */
+.sidebar-header {
+  flex-shrink: 0;
+}
+
+.sidebar-user-info {
+  flex-shrink: 0;
+}
+
+.sidebar-navigation {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1rem 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.sidebar-navigation::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-navigation::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.sidebar-navigation::-webkit-scrollbar-thumb {
+  background: rgba(46, 196, 182, 0.5);
+  border-radius: 2px;
+}
+
+.sidebar-navigation::-webkit-scrollbar-thumb:hover {
+  background: rgba(46, 196, 182, 0.7);
+}
+
+.sidebar-bottom {
+  flex-shrink: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Mobile optimizations - English */
+@media (max-width: 640px) {
+  .welcome-section {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .welcome-section h2 {
+    font-size: 1.5rem !important;
+  }
+  
+  .welcome-section p {
+    font-size: 0.875rem !important;
+  }
+  
+  .admin-cards-grid > div {
+    padding: 1rem !important;
+  }
+  
+  .admin-section {
+    padding: 0.75rem;
+  }
+}
+
+/* Tablet optimizations - English */
+@media (min-width: 641px) and (max-width: 1023px) {
+  .welcome-section {
+    padding: 1.25rem;
+  }
+  
+  .admin-cards-grid > div {
+    padding: 1.25rem !important;
+  }
+  
+  .sidebar-navigation {
+    padding: 1rem 0.75rem;
+  }
+}
+
+/* Desktop sidebar scrolling - English */
+@media (min-width: 1024px) {
+  .sidebar-navigation {
+    padding: 1.5rem 1rem;
+  }
+  
+  .sidebar-navigation::-webkit-scrollbar {
+    width: 6px;
+  }
+}
+
+/* Header responsive text - English */
+.admin-header h1 {
+  font-size: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .admin-header h1 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-header h1 {
+    font-size: 1.875rem;
+  }
+}
+
+/* Search input responsive - English */
+.admin-search {
+  width: 100%;
+  max-width: 200px;
+}
+
+@media (min-width: 768px) {
+  .admin-search {
+    max-width: 300px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-search {
+    max-width: 400px;
+  }
+}
+
+/* Sidebar Collapse Animation - English */
+.admin-sidebar-en {
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.sidebar-text {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.admin-sidebar-en.w-20 .sidebar-text {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Tooltip Styles - English */
+.sidebar-tooltip {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 0.5rem;
+  background-color: #1f2937;
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+  z-index: 1000;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-tooltip::before {
+  content: '';
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 4px solid transparent;
+  border-right-color: #1f2937;
+}
+
+.group:hover .sidebar-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Smooth transitions for main content - English */
+.admin-main-content-en {
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced button hover effects - English */
+.admin-sidebar-en button {
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-sidebar-en button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease-in-out;
+}
+
+.admin-sidebar-en button:hover::before {
+  left: 100%;
+}
+
+/* Ensure proper spacing on all devices - English */
+.admin-section > * + * {
+  margin-top: 1rem;
+}
+
+@media (min-width: 768px) {
+  .admin-section > * + * {
+    margin-top: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-section > * + * {
+    margin-top: 2rem;
+  }
+}

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Display Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .image-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+        }
+        .image-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            display: block;
+        }
+        .image-card .info {
+            padding: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .status.loading {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ Image Display Test</h1>
+        <p>Testing image upload and display functionality for Sysora Hotel Management System</p>
+
+        <div class="test-section">
+            <h3>🔍 Server Status</h3>
+            <div id="server-status" class="status loading">Checking...</div>
+            <button onclick="checkServerStatus()">Refresh Status</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📁 Available Images</h3>
+            <div id="available-images" class="status loading">Loading...</div>
+            <button onclick="loadAvailableImages()">Refresh Images</button>
+            <div id="images-grid" class="image-grid"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🏨 Room Data Test</h3>
+            <div id="room-data-status" class="status loading">Loading...</div>
+            <button onclick="loadRoomData()">Load Room Data</button>
+            <div id="room-data-log" class="log"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🖼️ Direct Image Test</h3>
+            <p>Testing direct image URLs:</p>
+            <div id="direct-images" class="image-grid"></div>
+            <button onclick="testDirectImages()">Test Direct Images</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 Debug Log</h3>
+            <div id="debug-log" class="log"></div>
+            <button onclick="clearLog()">Clear Log</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000';
+        const debugLog = document.getElementById('debug-log');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+            debugLog.textContent += logEntry;
+            debugLog.scrollTop = debugLog.scrollHeight;
+            console.log(logEntry);
+        }
+
+        function clearLog() {
+            debugLog.textContent = '';
+        }
+
+        async function checkServerStatus() {
+            const statusEl = document.getElementById('server-status');
+            statusEl.className = 'status loading';
+            statusEl.textContent = 'Checking...';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    statusEl.className = 'status success';
+                    statusEl.textContent = `✅ Server running - ${data.message}`;
+                    log('Server health check passed');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                statusEl.className = 'status error';
+                statusEl.textContent = `❌ Server error: ${error.message}`;
+                log(`Server health check failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function loadAvailableImages() {
+            const statusEl = document.getElementById('available-images');
+            const gridEl = document.getElementById('images-grid');
+            
+            statusEl.className = 'status loading';
+            statusEl.textContent = 'Loading...';
+            gridEl.innerHTML = '';
+
+            // Test known image filenames
+            const testImages = [
+                'room-1749132295828-348591325',
+                'room-1749132295840-635040112'
+            ];
+
+            let successCount = 0;
+            let errorCount = 0;
+
+            for (const filename of testImages) {
+                try {
+                    const imageUrl = `${API_BASE}/api/rooms/image/${filename}`;
+                    const response = await fetch(imageUrl);
+                    
+                    if (response.ok) {
+                        const imageCard = document.createElement('div');
+                        imageCard.className = 'image-card';
+                        imageCard.innerHTML = `
+                            <img src="${imageUrl}" alt="${filename}" 
+                                 onload="this.nextElementSibling.innerHTML += '<br>✅ Loaded successfully'"
+                                 onerror="this.nextElementSibling.innerHTML += '<br>❌ Failed to load'">
+                            <div class="info">
+                                <strong>${filename}</strong><br>
+                                Size: ${response.headers.get('content-length') || 'Unknown'} bytes<br>
+                                Type: ${response.headers.get('content-type') || 'Unknown'}
+                            </div>
+                        `;
+                        gridEl.appendChild(imageCard);
+                        successCount++;
+                        log(`Image accessible: ${filename}`);
+                    } else {
+                        errorCount++;
+                        log(`Image not accessible: ${filename} (${response.status})`, 'error');
+                    }
+                } catch (error) {
+                    errorCount++;
+                    log(`Error testing image ${filename}: ${error.message}`, 'error');
+                }
+            }
+
+            statusEl.className = successCount > 0 ? 'status success' : 'status error';
+            statusEl.textContent = `✅ ${successCount} images accessible, ❌ ${errorCount} errors`;
+        }
+
+        async function loadRoomData() {
+            const statusEl = document.getElementById('room-data-status');
+            const logEl = document.getElementById('room-data-log');
+            
+            statusEl.className = 'status loading';
+            statusEl.textContent = 'Loading...';
+            logEl.textContent = '';
+
+            try {
+                // Try to get rooms data (this might require authentication)
+                const response = await fetch(`${API_BASE}/api/rooms`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    statusEl.className = 'status success';
+                    statusEl.textContent = `✅ Loaded ${data.data?.rooms?.length || 0} rooms`;
+                    logEl.textContent = JSON.stringify(data, null, 2);
+                    log(`Loaded room data: ${data.data?.rooms?.length || 0} rooms`);
+                } else {
+                    throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+                }
+            } catch (error) {
+                statusEl.className = 'status error';
+                statusEl.textContent = `❌ Error: ${error.message}`;
+                logEl.textContent = `Error: ${error.message}`;
+                log(`Room data load failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDirectImages() {
+            const gridEl = document.getElementById('direct-images');
+            gridEl.innerHTML = '';
+
+            const testUrls = [
+                `${API_BASE}/api/rooms/image/room-1749132295828-348591325`,
+                `${API_BASE}/api/rooms/image/room-1749132295840-635040112`,
+                `${API_BASE}/uploads/rooms/room-1749132295828-348591325`,
+                `${API_BASE}/uploads/rooms/room-1749132295840-635040112`
+            ];
+
+            testUrls.forEach((url, index) => {
+                const imageCard = document.createElement('div');
+                imageCard.className = 'image-card';
+                imageCard.innerHTML = `
+                    <img src="${url}" alt="Test ${index + 1}" 
+                         onload="this.nextElementSibling.innerHTML += '<br>✅ Loaded'"
+                         onerror="this.nextElementSibling.innerHTML += '<br>❌ Failed'">
+                    <div class="info">
+                        <strong>Test ${index + 1}</strong><br>
+                        URL: ${url}
+                    </div>
+                `;
+                gridEl.appendChild(imageCard);
+            });
+
+            log('Testing direct image URLs');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            log('Image Display Test initialized');
+            checkServerStatus();
+            loadAvailableImages();
+        });
+    </script>
+</body>
+</html>

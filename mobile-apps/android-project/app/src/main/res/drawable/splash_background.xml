@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- Background gradient -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="linear"
+                android:angle="135"
+                android:startColor="@color/sysora_mint"
+                android:centerColor="@color/sysora_mint_dark"
+                android:endColor="@color/sysora_midnight" />
+        </shape>
+    </item>
+    
+    <!-- Overlay pattern (optional) -->
+    <item android:top="0dp" android:bottom="0dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#10FFFFFF" />
+        </shape>
+    </item>
+    
+</layer-list>

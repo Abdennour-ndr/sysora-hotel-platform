@@ -1,0 +1,234 @@
+<resources>
+    <!-- Base application theme -->
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <!-- Primary brand color -->
+        <item name="colorPrimary">@color/sysora_mint</item>
+        <item name="colorPrimaryVariant">@color/sysora_mint_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        
+        <!-- Secondary brand color -->
+        <item name="colorSecondary">@color/sysora_midnight</item>
+        <item name="colorSecondaryVariant">@color/sysora_midnight_dark</item>
+        <item name="colorOnSecondary">@color/white</item>
+        
+        <!-- Status bar color -->
+        <item name="android:statusBarColor">@color/sysora_light</item>
+        <item name="android:windowLightStatusBar">true</item>
+        
+        <!-- Navigation bar color -->
+        <item name="android:navigationBarColor">@color/white</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        
+        <!-- Background colors -->
+        <item name="android:windowBackground">@color/background</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        
+        <!-- Error colors -->
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/white</item>
+        
+        <!-- Text colors -->
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        
+        <!-- EditText background -->
+        <item name="android:editTextBackground">@drawable/edit_text_background</item>
+        
+        <!-- Button style -->
+        <item name="materialButtonStyle">@style/SysoraButton</item>
+        
+        <!-- Card style -->
+        <item name="materialCardViewStyle">@style/SysoraCard</item>
+    </style>
+
+    <!-- Splash screen theme -->
+    <style name="SplashTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="android:statusBarColor">@color/sysora_mint</item>
+        <item name="android:navigationBarColor">@color/sysora_mint</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+    <!-- Button Styles -->
+    <style name="SysoraButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:textColor">@color/white</item>
+        <item name="backgroundTint">@color/sysora_mint</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="elevation">4dp</item>
+    </style>
+
+    <style name="SysoraButton.Secondary">
+        <item name="android:textColor">@color/sysora_mint</item>
+        <item name="backgroundTint">@color/white</item>
+        <item name="strokeColor">@color/sysora_mint</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <style name="SysoraButton.Outline">
+        <item name="android:textColor">@color/sysora_mint</item>
+        <item name="backgroundTint">@color/transparent</item>
+        <item name="strokeColor">@color/sysora_mint</item>
+        <item name="strokeWidth">2dp</item>
+    </style>
+
+    <style name="SysoraButton.Text">
+        <item name="android:textColor">@color/sysora_mint</item>
+        <item name="backgroundTint">@color/transparent</item>
+        <item name="elevation">0dp</item>
+    </style>
+
+    <!-- Card Styles -->
+    <style name="SysoraCard" parent="Widget.MaterialComponents.CardView">
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardElevation">4dp</item>
+        <item name="cardBackgroundColor">@color/surface</item>
+        <item name="contentPadding">16dp</item>
+    </style>
+
+    <style name="SysoraCard.Elevated">
+        <item name="cardElevation">8dp</item>
+    </style>
+
+    <style name="SysoraCard.Flat">
+        <item name="cardElevation">0dp</item>
+        <item name="strokeColor">@color/border</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <!-- Text Styles -->
+    <style name="SysoraText">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="SysoraText.Headline1">
+        <item name="android:textSize">32sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:lineSpacingExtra">8dp</item>
+    </style>
+
+    <style name="SysoraText.Headline2">
+        <item name="android:textSize">24sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:lineSpacingExtra">4dp</item>
+    </style>
+
+    <style name="SysoraText.Headline3">
+        <item name="android:textSize">20sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="SysoraText.Body1">
+        <item name="android:textSize">16sp</item>
+        <item name="android:lineSpacingExtra">4dp</item>
+    </style>
+
+    <style name="SysoraText.Body2">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+
+    <style name="SysoraText.Caption">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/text_light</item>
+    </style>
+
+    <!-- Input Styles -->
+    <style name="SysoraTextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/sysora_mint</item>
+        <item name="boxCornerRadiusTopStart">12dp</item>
+        <item name="boxCornerRadiusTopEnd">12dp</item>
+        <item name="boxCornerRadiusBottomStart">12dp</item>
+        <item name="boxCornerRadiusBottomEnd">12dp</item>
+        <item name="hintTextColor">@color/text_secondary</item>
+        <item name="android:textColorHint">@color/text_light</item>
+    </style>
+
+    <style name="SysoraEditText">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+    </style>
+
+    <!-- Toolbar Styles -->
+    <style name="SysoraToolbar" parent="Widget.MaterialComponents.Toolbar">
+        <item name="android:background">@color/surface</item>
+        <item name="titleTextColor">@color/text_primary</item>
+        <item name="subtitleTextColor">@color/text_secondary</item>
+        <item name="android:elevation">4dp</item>
+    </style>
+
+    <!-- Bottom Navigation Styles -->
+    <style name="SysoraBottomNavigation" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="android:background">@color/surface</item>
+        <item name="itemIconTint">@color/bottom_nav_color</item>
+        <item name="itemTextColor">@color/bottom_nav_color</item>
+        <item name="elevation">8dp</item>
+    </style>
+
+    <!-- Chip Styles -->
+    <style name="SysoraChip" parent="Widget.MaterialComponents.Chip.Choice">
+        <item name="chipBackgroundColor">@color/chip_background_color</item>
+        <item name="android:textColor">@color/chip_text_color</item>
+        <item name="chipStrokeColor">@color/sysora_mint</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="chipCornerRadius">20dp</item>
+    </style>
+
+    <!-- FAB Styles -->
+    <style name="SysoraFAB" parent="Widget.MaterialComponents.FloatingActionButton">
+        <item name="backgroundTint">@color/sysora_mint</item>
+        <item name="tint">@color/white</item>
+        <item name="elevation">6dp</item>
+        <item name="pressedTranslationZ">12dp</item>
+    </style>
+
+    <!-- Dialog Styles -->
+    <style name="SysoraDialog" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+        <item name="colorPrimary">@color/sysora_mint</item>
+        <item name="android:windowBackground">@drawable/dialog_background</item>
+        <item name="android:windowMinWidthMajor">280dp</item>
+        <item name="android:windowMinWidthMinor">280dp</item>
+    </style>
+
+    <!-- Progress Bar Styles -->
+    <style name="SysoraProgressBar" parent="Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="android:progressTint">@color/sysora_mint</item>
+        <item name="android:progressBackgroundTint">@color/gray_200</item>
+        <item name="android:minHeight">4dp</item>
+    </style>
+
+    <!-- Switch Styles -->
+    <style name="SysoraSwitch" parent="Widget.MaterialComponents.CompoundButton.Switch">
+        <item name="thumbTint">@color/switch_thumb_color</item>
+        <item name="trackTint">@color/switch_track_color</item>
+    </style>
+
+    <!-- Splash Screen Text Styles -->
+    <style name="SplashAppName">
+        <item name="android:textSize">28sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="SplashAppSubtitle">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:gravity">center</item>
+        <item name="android:alpha">0.9</item>
+    </style>
+</resources>
