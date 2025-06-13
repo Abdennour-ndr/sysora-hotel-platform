@@ -70,8 +70,8 @@ kill_timeout = "5s"
     timeout = "4s"
     tls_skip_verify = false
 
-[deploy]
-  release_command = "npm run build"
+# [deploy]
+  # Build happens in Dockerfile, no release command needed
 
 [[mounts]]
   source = "sysora_uploads"
