@@ -55,7 +55,7 @@ const Dashboard = () => {
 
   const fetchCustomization = async (token) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/customization`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://sysora-hotel-platform.fly.dev'}/api/customization`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -85,7 +85,7 @@ const Dashboard = () => {
   const loadDashboardData = async (token) => {
     try {
       // Load reservations
-      const reservationsResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/reservations`, {
+      const reservationsResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://sysora-hotel-platform.fly.dev'}/api/reservations`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -100,7 +100,7 @@ const Dashboard = () => {
       }
 
       // Load rooms
-      const roomsResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/rooms`, {
+      const roomsResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://sysora-hotel-platform.fly.dev'}/api/rooms`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -115,7 +115,7 @@ const Dashboard = () => {
       }
 
       // Load customers
-      const customersResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/customers`, {
+      const customersResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://sysora-hotel-platform.fly.dev'}/api/customers`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

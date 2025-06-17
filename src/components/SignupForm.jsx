@@ -99,7 +99,7 @@ const MultiStepSignupModal = ({ isOpen, onClose, onSwitchToLogin }) => {
   const checkEmailAvailability = async (email) => {
     setCheckingEmail(true)
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/auth/check-email/${email}`)
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://sysora-hotel-platform.fly.dev'}/api/auth/check-email/${email}`)
       const data = await response.json()
 
       if (response.ok) {
@@ -120,7 +120,7 @@ const MultiStepSignupModal = ({ isOpen, onClose, onSwitchToLogin }) => {
   const checkSubdomainAvailability = async (subdomain) => {
     setCheckingSubdomain(true)
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/auth/check-subdomain/${subdomain}`)
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://sysora-hotel-platform.fly.dev'}/api/auth/check-subdomain/${subdomain}`)
       const data = await response.json()
 
       if (response.ok) {
@@ -198,7 +198,7 @@ const MultiStepSignupModal = ({ isOpen, onClose, onSwitchToLogin }) => {
 
   const clearTestData = async (email) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/auth/clear-test-data/${email}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://sysora-hotel-platform.fly.dev'}/api/auth/clear-test-data/${email}`, {
         method: 'DELETE'
       })
       const data = await response.json()
@@ -232,7 +232,7 @@ const MultiStepSignupModal = ({ isOpen, onClose, onSwitchToLogin }) => {
         selectedPlan: formData.selectedPlan
       });
 
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/auth/register-hotel`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://sysora-hotel-platform.fly.dev'}/api/auth/register-hotel`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

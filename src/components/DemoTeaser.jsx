@@ -94,7 +94,7 @@ const DemoTeaser = () => {
       console.log('🎭 Starting demo login from DemoTeaser...');
 
       // Call demo login API
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/auth/demo-login`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://sysora-hotel-platform.fly.dev'}/api/auth/demo-login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
