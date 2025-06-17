@@ -11,6 +11,7 @@ import SignupForm from '../../components/SignupForm';
 import WorkspaceLoginModal from '../../components/WorkspaceLoginModal';
 import Footer from '../../components/Footer';
 import SysoraLogo from '../../components/SysoraLogo';
+import DemoLoginButton from '../../components/demo/DemoLoginButton';
 import LanguageSelector from '../../components/LanguageSelector';
 
 const LandingPageFR = () => {
@@ -70,17 +71,12 @@ const LandingPageFR = () => {
               <a href="#contact" className="text-gray-600 hover:text-sysora-midnight transition-colors">
                 {t('navigation.contact')}
               </a>
-              <a
-                href="/hotel-demo"
-                target="_blank"
-                rel="noopener noreferrer"
+              <DemoLoginButton
+                variant="link"
+                size="small"
+                showFeatures={false}
                 className="flex items-center space-x-1 text-sysora-mint hover:text-sysora-midnight transition-colors font-medium"
-              >
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z"/>
-                </svg>
-                <span>Démo</span>
-              </a>
+              />
               <button
                 onClick={openLoginModal}
                 className="text-sysora-midnight hover:text-sysora-mint transition-colors font-medium"

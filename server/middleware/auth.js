@@ -12,7 +12,8 @@ export const authenticateToken = async (req, res, next) => {
       return res.status(401).json({ error: 'Access token required' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const secret = process.env.JWT_SECRET || 'sysora-demo-secret-key-2024';
+    const decoded = jwt.verify(token, secret);
 
     // Find user and populate hotel information
     const user = await User.findById(decoded.userId)
@@ -32,8 +33,8 @@ export const authenticateToken = async (req, res, next) => {
       return res.status(401).json({ error: 'Hotel account is deactivated' });
     }
 
-    // Check subscription status
-    if (user.hotelId.subscription.status !== 'active') {
+    // Check subscription status (skip for demo accounts)
+    if (!decoded.isDemo && user.hotelId.subscription.status !== 'active') {
       return res.status(402).json({
         error: 'Subscription required',
         subscriptionStatus: user.hotelId.subscription.status
@@ -132,9 +133,10 @@ export const validateHotelAccess = (req, res, next) => {
 
 // Generate JWT token
 export const generateToken = (userId) => {
+  const secret = process.env.JWT_SECRET || 'sysora-demo-secret-key-2024';
   return jwt.sign(
     { userId },
-    process.env.JWT_SECRET,
+    secret,
     { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
   );
 };

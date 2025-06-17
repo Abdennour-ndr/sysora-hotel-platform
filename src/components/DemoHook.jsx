@@ -12,6 +12,7 @@ import {
   Monitor
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import DemoLoginButton from './demo/DemoLoginButton';
 
 const DemoHook = () => {
   const { language } = useLanguage();
@@ -34,17 +35,17 @@ const DemoHook = () => {
 
   const translations = {
     ar: {
-      badge: "عرض توضيحي مباشر",
-      title: "شاهد النظام في العمل",
-      subtitle: "اكتشف كيف يمكن لسيسورا تحويل إدارة فندقك في دقائق معدودة",
+      badge: "حساب تجريبي مباشر",
+      title: "ادخل للنظام مباشرة",
+      subtitle: "جرب سيسورا بحساب تجريبي حقيقي - لوحة تحكم كاملة ببيانات فعلية",
       features: [
+        "دخول فوري بدون تسجيل",
         "لوحة تحكم حقيقية بالكامل",
         "بيانات فندق واقعية",
-        "جميع الميزات متاحة",
-        "تجربة تفاعلية كاملة"
+        "جميع الميزات متاحة للاستكشاف"
       ],
-      cta: "شاهد العرض التوضيحي",
-      ctaSecondary: "تجربة مجانية لمدة 3 يوم",
+      cta: "دخول مباشر للحساب التجريبي",
+      ctaSecondary: "جلسة 24 ساعة مجانية",
       stats: {
         viewers: "مشاهدة",
         rating: "تقييم المستخدمين",
@@ -52,17 +53,17 @@ const DemoHook = () => {
       },
       testimonials: [
         {
-          text: "العرض التوضيحي أقنعني فوراً. النظام بديهي ومتكامل.",
+          text: "الحساب التجريبي أقنعني فوراً. دخلت مباشرة وجربت كل شيء.",
           author: "أحمد محمد",
           role: "مدير فندق الأحلام"
         },
         {
-          text: "رأيت بالضبط ما أحتاجه لفندقي. التصميم رائع والوظائف شاملة.",
-          author: "فاطمة علي", 
+          text: "رائع! لوحة تحكم حقيقية ببيانات فعلية. جربت كل الميزات بدون تسجيل.",
+          author: "فاطمة علي",
           role: "مالكة فندق النخيل"
         }
       ],
-      urgency: "أكثر من '47' فندق يستخدم النظام الآن",
+      urgency: "جرب الآن - حساب تجريبي فوري بدون تسجيل",
       interactive: {
         quality: "جودة عالية",
         interactive: "تفاعلي",
@@ -71,17 +72,17 @@ const DemoHook = () => {
       secondaryCta: "أو شاهد العرض مباشرة"
     },
     en: {
-      badge: "Live Demo",
-      title: "See the System in Action",
-      subtitle: "Discover how Sysora can transform your hotel management in minutes",
+      badge: "Live Demo Account",
+      title: "Enter the System Directly",
+      subtitle: "Try Sysora with a real demo account - full dashboard with actual data",
       features: [
+        "Instant access without registration",
         "Fully functional dashboard",
         "Real hotel data",
-        "All features available", 
-        "Complete interactive experience"
+        "All features available to explore"
       ],
-      cta: "Watch Demo",
-      ctaSecondary: "3-Day Free Trial",
+      cta: "Enter Demo Account",
+      ctaSecondary: "24-Hour Free Session",
       stats: {
         viewers: "views",
         rating: "user rating",
@@ -149,9 +150,50 @@ const DemoHook = () => {
   const t = translations[language] || translations.en;
   const testimonials = t.testimonials;
 
-  const handleDemoClick = () => {
-    // Add analytics tracking here
-    window.open('/hotel-demo', '_blank');
+  const handleDemoClick = async () => {
+    try {
+      console.log('🎭 Starting demo login from DemoHook...');
+
+      // Call demo login API
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/auth/demo-login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        console.log('✅ Demo login successful:', data.data);
+
+        // Store authentication data directly in localStorage
+        localStorage.setItem('sysora_token', data.data.token);
+        localStorage.setItem('sysora_user', JSON.stringify(data.data.user));
+        localStorage.setItem('sysora_hotel', JSON.stringify(data.data.hotel));
+
+        // Show success message
+        window.showToast && window.showToast(
+          'مرحباً بك في الحساب التجريبي! جميع الميزات متاحة للاستكشاف.',
+          'success'
+        );
+
+        // Redirect to dashboard
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 500);
+
+      } else {
+        throw new Error(data.error || 'فشل في الدخول للحساب التجريبي');
+      }
+
+    } catch (error) {
+      console.error('❌ Demo login error:', error);
+      window.showToast && window.showToast(
+        error.message || 'فشل في الدخول للحساب التجريبي. يرجى المحاولة مرة أخرى.',
+        'error'
+      );
+    }
   };
 
   return (
@@ -248,67 +290,35 @@ const DemoHook = () => {
             {/* Right Content - Demo Preview */}
             <div className="relative">
               
-              {/* Main Demo Button */}
-              <div className="relative group cursor-pointer" onClick={handleDemoClick}>
-                <div className="absolute inset-0 bg-gradient-to-r from-sysora-mint to-sysora-mint/80 rounded-3xl blur-xl opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                
-                <div className="relative bg-gradient-to-br from-sysora-midnight via-sysora-midnight to-blue-900 rounded-3xl p-8 text-white overflow-hidden">
-                  
-                  {/* Background Pattern */}
-                  <div className="absolute inset-0 opacity-10">
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent"></div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="relative text-center space-y-6">
-                    
-                    {/* Play Button */}
-                    <div className="relative mx-auto w-24 h-24 bg-sysora-mint rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-2xl">
-                      <Play className="w-10 h-10 text-sysora-midnight ml-1" fill="currentColor" />
-                      
-                      {/* Pulse Animation */}
-                      <div className="absolute inset-0 bg-sysora-mint rounded-full animate-ping opacity-75"></div>
-                      <div className="absolute inset-2 bg-sysora-mint/50 rounded-full animate-ping opacity-50" style={{ animationDelay: '0.5s' }}></div>
-                    </div>
-
-                    {/* Text */}
-                    <div>
-                      <h3 className="text-2xl font-bold mb-2">{t.cta}</h3>
-                      <p className="text-sysora-mint text-lg">{t.ctaSecondary}</p>
-                    </div>
-
-                    {/* Interactive Elements */}
-                    <div className="flex items-center justify-center space-x-6 text-sm opacity-90">
-                      <div className="flex items-center space-x-2">
-                        <Monitor className="w-4 h-4" />
-                        <span>{t.interactive.quality}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <MousePointer className="w-4 h-4" />
-                        <span>{t.interactive.interactive}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Eye className="w-4 h-4" />
-                        <span>{t.interactive.liveData}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Floating Elements */}
-                  <div className="absolute -top-4 -right-4 w-16 h-16 bg-sysora-mint/20 rounded-full blur-xl"></div>
-                  <div className="absolute -bottom-4 -left-4 w-20 h-20 bg-blue-500/20 rounded-full blur-xl"></div>
+              {/* Demo Login Button */}
+              <div className="bg-white rounded-3xl p-8 shadow-2xl border border-gray-100">
+                <div className="text-center mb-6">
+                  <h3 className="text-2xl font-bold text-sysora-midnight mb-2">{t.cta}</h3>
+                  <p className="text-gray-600">{t.ctaSecondary}</p>
                 </div>
-              </div>
 
-              {/* Secondary CTA */}
-              <div className="mt-6 text-center">
-                <button
-                  onClick={handleDemoClick}
-                  className="inline-flex items-center space-x-2 text-sysora-mint hover:text-sysora-midnight transition-colors font-medium group"
-                >
-                  <span>{t.secondaryCta}</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </button>
+                <DemoLoginButton
+                  variant="primary"
+                  size="large"
+                  showFeatures={true}
+                  className="w-full"
+                />
+
+                {/* Interactive Elements */}
+                <div className="flex items-center justify-center space-x-6 text-sm text-gray-500 mt-6 pt-6 border-t border-gray-100">
+                  <div className="flex items-center space-x-2">
+                    <Monitor className="w-4 h-4" />
+                    <span>{t.interactive.quality}</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <MousePointer className="w-4 h-4" />
+                    <span>{t.interactive.interactive}</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Eye className="w-4 h-4" />
+                    <span>{t.interactive.liveData}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

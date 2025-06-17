@@ -129,7 +129,22 @@ router.post('/', authenticateToken, requirePermission('manage_reservations'), as
       return res.status(400).json({ error: 'Check-out date must be after check-in date' });
     }
 
-    if (checkIn < new Date().setHours(0, 0, 0, 0)) {
+    // Allow check-in from today onwards (final fix for timezone)
+    const now = new Date();
+
+    // Get date strings for comparison (YYYY-MM-DD format)
+    const todayStr = now.toISOString().split('T')[0];
+    const checkInStr = checkIn.toISOString().split('T')[0];
+
+    console.log('Date validation (final fix):', {
+      now: now.toISOString(),
+      todayStr,
+      checkIn: checkIn.toISOString(),
+      checkInStr,
+      comparison: checkInStr < todayStr
+    });
+
+    if (checkInStr < todayStr) {
       return res.status(400).json({ error: 'Check-in date cannot be in the past' });
     }
 

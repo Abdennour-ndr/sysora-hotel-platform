@@ -2,6 +2,9 @@ import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import './styles/customization.css'
 import LandingPageWrapper from './components/LandingPageWrapper'
+import ModernLandingPage from './pages/landing/ModernLandingPage'
+import ModernSignInPage from './pages/auth/ModernSignInPage'
+import ModernSignUpPage from './pages/auth/ModernSignUpPage'
 import Dashboard from './pages/Dashboard'
 import AdminDashboardWrapper from './components/AdminDashboardWrapper'
 import AdminLogin from './pages/AdminLogin'
@@ -15,6 +18,9 @@ import ThemeProvider from './components/ThemeProvider'
 import { FeatureAccessProvider } from './hooks/useFeatureAccess.jsx'
 import { LanguageProvider } from './contexts/LanguageContext'
 
+// Design System Components
+import { DesignSystemDemo } from './components/examples'
+
 
 
 
@@ -24,7 +30,11 @@ function App() {
       <Router>
         <FeatureAccessProvider>
             <Routes>
-              <Route path="/" element={<LandingPageWrapper />} />
+              <Route path="/" element={<ModernLandingPage />} />
+              <Route path="/signin" element={<ModernSignInPage />} />
+              <Route path="/signup" element={<ModernSignUpPage />} />
+              <Route path="/old-landing" element={<LandingPageWrapper />} />
+              <Route path="/design-system" element={<DesignSystemDemo />} />
               <Route path="/pricing" element={<PricingPage />} />
               <Route path="/dashboard" element={
                 <ThemeProvider>

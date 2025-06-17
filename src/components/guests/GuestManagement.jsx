@@ -21,7 +21,8 @@ import {
   Heart,
   Clock,
   DollarSign,
-  RefreshCw
+  RefreshCw,
+  X
 } from 'lucide-react';
 
 const GuestManagement = () => {
@@ -35,68 +36,67 @@ const GuestManagement = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedGuest, setSelectedGuest] = useState(null);
 
-  // Mock guest data
+  // Load real guest data from API
   useEffect(() => {
-    const mockGuests = [
-      {
-        id: 1,
-        firstName: 'Ahmed',
-        lastName: 'Hassan',
-        email: 'ahmed.hassan@email.com',
-        phone: '+213 555 123 456',
-        nationality: 'Algeria',
-        dateOfBirth: '1985-03-15',
-        address: 'Algiers, Algeria',
-        membershipLevel: 'gold',
-        totalStays: 12,
-        totalSpent: 15420,
-        lastStay: '2024-01-15',
-        status: 'active',
-        rating: 4.8,
-        preferences: ['Non-smoking', 'High floor', 'City view'],
-        loyaltyPoints: 2840,
-        avatar: null
-      },
-      {
-        id: 2,
-        firstName: 'Sarah',
-        lastName: 'Johnson',
-        email: 'sarah.j@email.com',
-        phone: '+1 555 987 654',
-        nationality: 'USA',
-        dateOfBirth: '1990-07-22',
-        address: 'New York, USA',
-        membershipLevel: 'platinum',
-        totalStays: 25,
-        totalSpent: 45200,
-        lastStay: '2024-01-20',
-        status: 'active',
-        rating: 4.9,
-        preferences: ['Suite', 'Late checkout', 'Spa access'],
-        loyaltyPoints: 5680,
-        avatar: null
-      },
-      {
-        id: 3,
-        firstName: 'Mohamed',
-        lastName: 'Benali',
-        email: 'mohamed.benali@email.com',
-        phone: '+213 555 789 123',
-        nationality: 'Algeria',
-        dateOfBirth: '1978-11-08',
-        address: 'Oran, Algeria',
-        membershipLevel: 'silver',
-        totalStays: 8,
-        totalSpent: 8900,
-        lastStay: '2023-12-10',
-        status: 'inactive',
-        rating: 4.5,
-        preferences: ['Business center', 'Early breakfast'],
-        loyaltyPoints: 1200,
-        avatar: null
+    const loadGuests = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('sysora_token');
+
+        if (!token) {
+          console.error('No auth token found');
+          setLoading(false);
+          return;
+        }
+
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/guests`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data.guests) {
+            const formattedGuests = data.data.guests.map(guest => ({
+              id: guest._id,
+              firstName: guest.firstName,
+              lastName: guest.lastName,
+              email: guest.email,
+              phone: guest.phone,
+              nationality: guest.nationality,
+              dateOfBirth: guest.dateOfBirth,
+              address: guest.address || `${guest.nationality}`,
+              membershipLevel: guest.membershipLevel || 'bronze',
+              totalStays: guest.totalStays || 0,
+              totalSpent: guest.totalSpent || 0,
+              lastStay: guest.lastStay || new Date().toISOString(),
+              status: guest.isActive ? 'active' : 'inactive',
+              rating: guest.rating || 4.0,
+              preferences: guest.preferences || [],
+              loyaltyPoints: guest.loyaltyPoints || 0,
+              avatar: guest.avatar || null
+            }));
+
+            setGuests(formattedGuests);
+          } else {
+            console.error('Failed to load guests:', data.error);
+            setGuests([]);
+          }
+        } else {
+          console.error('Failed to fetch guests:', response.status);
+          setGuests([]);
+        }
+      } catch (error) {
+        console.error('Error loading guests:', error);
+        setGuests([]);
+      } finally {
+        setLoading(false);
       }
-    ];
-    setGuests(mockGuests);
+    };
+
+    loadGuests();
   }, []);
 
   // Filter and sort guests
@@ -417,6 +417,178 @@ const GuestManagement = () => {
             <UserPlus className="w-5 h-5 mr-2" />
             Add First Guest
           </button>
+        </div>
+      )}
+
+      {/* Add Guest Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-gray-900">Add New Guest</h3>
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.target);
+              const guestData = {
+                firstName: formData.get('firstName'),
+                lastName: formData.get('lastName'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                nationality: formData.get('nationality'),
+                dateOfBirth: formData.get('dateOfBirth'),
+                idType: formData.get('idType'),
+                idNumber: formData.get('idNumber'),
+                address: formData.get('address'),
+                notes: formData.get('notes')
+              };
+
+              // Simple API call
+              const token = localStorage.getItem('sysora_token');
+              fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/guests`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(guestData)
+              })
+              .then(response => response.json())
+              .then(data => {
+                if (data.success) {
+                  window.showToast && window.showToast('Guest added successfully', 'success');
+                  setShowAddModal(false);
+                  window.location.reload(); // Simple refresh
+                } else {
+                  window.showToast && window.showToast(data.error || 'Failed to add guest', 'error');
+                }
+              })
+              .catch(error => {
+                console.error('Error adding guest:', error);
+                window.showToast && window.showToast('Error adding guest', 'error');
+              });
+            }}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
+                  <input
+                    type="text"
+                    name="firstName"
+                    required
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                    placeholder="Ahmed"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Last Name *</label>
+                  <input
+                    type="text"
+                    name="lastName"
+                    required
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                    placeholder="Benali"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                  <input
+                    type="email"
+                    name="email"
+                    required
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                    placeholder="ahmed@example.com"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                    placeholder="+213 555 123 456"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Nationality</label>
+                  <input
+                    type="text"
+                    name="nationality"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                    placeholder="Algerian"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                  <input
+                    type="date"
+                    name="dateOfBirth"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">ID Type</label>
+                  <select
+                    name="idType"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                  >
+                    <option value="">Select ID Type</option>
+                    <option value="passport">Passport</option>
+                    <option value="national_id">National ID</option>
+                    <option value="driving_license">Driving License</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">ID Number</label>
+                  <input
+                    type="text"
+                    name="idNumber"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                    placeholder="ID Number"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                <textarea
+                  name="address"
+                  rows="3"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                  placeholder="Guest address..."
+                ></textarea>
+              </div>
+
+              <div className="flex justify-end space-x-4 mt-8">
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="px-6 py-3 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-3 bg-sysora-mint text-sysora-midnight rounded-xl hover:bg-sysora-mint/90 transition-colors font-semibold"
+                >
+                  Add Guest
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

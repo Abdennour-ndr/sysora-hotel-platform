@@ -59,31 +59,34 @@ export const FREE_TRIAL = {
   note: 'No credit card required'
 };
 
-// 📊 Enhanced Statistics (More Convincing Numbers)
+// 📊 Realistic Beta Statistics (Honest & Encouraging)
 export const PLATFORM_STATS = {
   hotels: {
-    value: 500,
-    suffix: '+',
-    label: 'Hotels',
-    description: 'Active hotels using our platform'
+    value: null, // No specific number - using text instead
+    suffix: '',
+    label: 'Partner Hotels',
+    description: 'Hotels in our beta program',
+    text: 'Beta Partners' // Alternative display
   },
   bookings: {
-    value: 50,
-    suffix: 'K+', 
-    label: 'Bookings',
-    description: 'Total bookings processed'
+    value: null, // No specific number - using text instead
+    suffix: '',
+    label: 'Test Bookings',
+    description: 'Successful test transactions',
+    text: 'Live Testing' // Alternative display
   },
   uptime: {
-    value: 99.9,
+    value: 99.5,
     suffix: '%',
     label: 'Uptime',
-    description: 'Platform reliability'
+    description: 'Platform reliability during beta'
   },
   satisfaction: {
-    value: 4.8,
-    suffix: '/5',
-    label: 'Rating',
-    description: 'Customer satisfaction score'
+    value: null, // No rating yet - using text instead
+    suffix: '',
+    label: 'Feedback',
+    description: 'Early user feedback',
+    text: 'Positive Feedback' // Alternative display
   }
 };
 
@@ -242,9 +245,9 @@ export const MARKETING_MESSAGES = {
   },
   
   social_proof: {
-    stats_title: 'Trusted by Hotels Worldwide',
-    testimonials_title: 'What Our Customers Say',
-    guarantee: '30-day money-back guarantee'
+    stats_title: 'Building Trust with Early Partners',
+    testimonials_title: 'Early Feedback from Beta Partners',
+    guarantee: 'Beta satisfaction guarantee'
   }
 };
 

@@ -2,11 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom animations */
-@keyframes fade-in {
+/* ===== SYSORA PROFESSIONAL ANIMATIONS ===== */
+
+/* Fade Animations */
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -14,20 +25,92 @@
   }
 }
 
-.animate-fade-in {
-  animation: fade-in 0.3s ease-out forwards;
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
-/* Enhanced Sysora Design System */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bounceGentle {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+  70% {
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulseGentle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Legacy support */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* ===== SYSORA PROFESSIONAL DESIGN SYSTEM ===== */
 :root {
-  /* Sysora Brand Colors */
-  --sysora-midnight: #002D5B;
-  --sysora-midnight-light: #1A4B73;
-  --sysora-midnight-dark: #001A35;
-  --sysora-mint: #2EC4B6;
-  --sysora-mint-light: #4FD1C7;
-  --sysora-mint-dark: #26A69A;
-  --sysora-light: #F9FAFB;
+  /* Sysora Brand Colors - Updated Professional Palette */
+  --sysora-midnight: #0A1628;        /* Deep Ocean Blue - Main brand */
+  --sysora-midnight-light: #1E3A5F;  /* Lighter variant for hover states */
+  --sysora-midnight-dark: #050B14;   /* Darker variant for emphasis */
+  --sysora-mint: #14B8A6;           /* Modern Teal - Secondary brand */
+  --sysora-mint-light: #2DD4BF;     /* Light variant for backgrounds */
+  --sysora-mint-dark: #0F766E;      /* Dark variant for text */
+  --sysora-light: #FAFBFC;          /* Ultra-light background */
+  --sysora-gray: #F1F5F9;           /* Light gray for sections */
+  --sysora-border: #E2E8F0;         /* Border color */
 
   /* Extended Semantic Colors */
   --success: #10B981;
@@ -120,13 +203,25 @@
 }
 
 @layer components {
-  /* Enhanced Button System */
+  /* ===== SYSORA PROFESSIONAL BUTTON SYSTEM ===== */
   .btn-primary {
-    @apply bg-sysora-mint hover:bg-teal-600 text-sysora-midnight font-semibold py-3 px-6 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105;
+    @apply bg-sysora-mint hover:bg-sysora-mint-dark text-sysora-midnight font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md hover:scale-105;
   }
 
   .btn-secondary {
-    @apply bg-white hover:bg-gray-50 text-sysora-midnight font-semibold py-3 px-6 rounded-2xl border-2 border-sysora-midnight transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105;
+    @apply bg-white hover:bg-sysora-midnight text-sysora-midnight hover:text-white font-semibold py-3 px-6 rounded-xl border-2 border-sysora-midnight transition-all duration-200 shadow-sm hover:shadow-md;
+  }
+
+  .btn-outline {
+    @apply bg-transparent hover:bg-sysora-mint/10 text-sysora-midnight border-2 border-neutral-300 hover:border-sysora-mint font-medium py-3 px-6 rounded-xl transition-all duration-200;
+  }
+
+  .btn-ghost {
+    @apply bg-transparent hover:bg-neutral-100 text-neutral-600 hover:text-neutral-900 font-medium py-3 px-6 rounded-xl transition-all duration-200;
+  }
+
+  .btn-gradient {
+    @apply bg-gradient-to-r from-sysora-mint to-sysora-mint-dark text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105;
   }
 
   .btn-success {
@@ -157,17 +252,25 @@
     @apply btn-icon bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-800;
   }
 
-  /* Enhanced Card System */
+  /* ===== SYSORA PROFESSIONAL CARD SYSTEM ===== */
   .card {
-    @apply bg-white rounded-3xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl border border-gray-100;
+    @apply bg-white rounded-xl shadow-sm p-6 transition-all duration-200 hover:shadow-md border border-neutral-200;
   }
 
   .card-elevated {
-    @apply card shadow-2xl hover:shadow-2xl hover:-translate-y-1;
+    @apply card shadow-lg hover:shadow-xl hover:-translate-y-1;
   }
 
   .card-interactive {
-    @apply card hover:shadow-2xl hover:-translate-y-2 cursor-pointer;
+    @apply card hover:shadow-lg hover:-translate-y-2 cursor-pointer hover:border-sysora-mint/30;
+  }
+
+  .card-gradient {
+    @apply card bg-gradient-to-br from-white to-neutral-50;
+  }
+
+  .card-glass {
+    @apply card bg-white/80 backdrop-blur-sm border-white/20;
   }
 
   .card-stats {
@@ -190,38 +293,72 @@
     @apply card-stats border-l-red-500;
   }
 
-  /* Enhanced Input System */
+  /* ===== SYSORA PROFESSIONAL INPUT SYSTEM ===== */
   .input-base {
-    @apply w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint focus:border-sysora-mint transition-all duration-300 bg-white;
+    @apply w-full px-4 py-3 border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint/20 focus:border-sysora-mint transition-all duration-200 bg-white placeholder:text-neutral-400;
+  }
+
+  .input-filled {
+    @apply input-base border-transparent bg-neutral-100 focus:bg-white hover:bg-neutral-50;
+  }
+
+  .input-outlined {
+    @apply input-base border-2 border-neutral-300 hover:border-neutral-400;
   }
 
   .input-error {
-    @apply input-base border-red-500 focus:ring-red-500 focus:border-red-500;
+    @apply input-base border-error-500 focus:ring-error-500/20 focus:border-error-500;
   }
 
   .input-success {
-    @apply input-base border-green-500 focus:ring-green-500 focus:border-green-500;
+    @apply input-base border-success-500 focus:ring-success-500/20 focus:border-success-500;
   }
 
-  /* Layout Utilities */
+  /* ===== SYSORA LAYOUT UTILITIES ===== */
   .section-padding {
     @apply py-16 px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-padding-sm {
+    @apply py-8 px-4 sm:px-6 lg:px-8;
   }
 
   .container-max {
     @apply max-w-7xl mx-auto;
   }
 
-  .gradient-primary {
-    @apply bg-gradient-to-r from-sysora-midnight via-sysora-midnight to-blue-800;
+  .container-responsive {
+    @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
 
-  .gradient-mint {
-    @apply bg-gradient-to-r from-sysora-mint to-teal-400;
+  /* ===== SYSORA GRADIENT SYSTEM ===== */
+  .gradient-primary {
+    @apply bg-gradient-to-r from-sysora-midnight to-sysora-midnight-light;
+  }
+
+  .gradient-secondary {
+    @apply bg-gradient-to-r from-sysora-mint to-sysora-mint-dark;
   }
 
   .gradient-card {
-    @apply bg-gradient-to-br from-white to-gray-50;
+    @apply bg-gradient-to-br from-white to-neutral-50;
+  }
+
+  .gradient-glass {
+    @apply bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-sm;
+  }
+
+  /* ===== SYSORA SHADOW SYSTEM ===== */
+  .shadow-sysora {
+    box-shadow: 0 4px 20px -2px rgba(10, 22, 40, 0.1);
+  }
+
+  .shadow-sysora-lg {
+    box-shadow: 0 10px 40px -4px rgba(10, 22, 40, 0.15);
+  }
+
+  .shadow-mint {
+    box-shadow: 0 4px 20px -2px rgba(20, 184, 166, 0.2);
   }
 
   /* Animation Utilities */

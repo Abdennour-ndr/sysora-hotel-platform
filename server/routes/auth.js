@@ -1,5 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 import Hotel from '../models/Hotel.js';
 import User from '../models/User.js';
 import { generateToken, authenticateToken } from '../middleware/auth.js';
@@ -118,6 +120,101 @@ router.post('/workspace-login', async (req, res) => {
   }
 });
 
+// Demo login - Direct access to demo account
+router.post('/demo-login', async (req, res) => {
+  try {
+    console.log('🎭 Demo login attempt');
+
+    // Check if database is connected
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        error: 'Database temporarily unavailable',
+        message: 'Demo service is currently offline. Please try again later.'
+      });
+    }
+
+    // Find demo hotel and user
+    const demoHotel = await Hotel.findOne({ subdomain: 'demo' });
+    if (!demoHotel) {
+      return res.status(404).json({
+        success: false,
+        error: 'Demo hotel not found. Please run demo data seeding first.',
+        hint: 'Run: npm run seed-demo'
+      });
+    }
+
+    const demoUser = await User.findOne({
+      email: 'admin@demo.com',
+      hotelId: demoHotel._id
+    });
+
+    if (!demoUser) {
+      return res.status(404).json({
+        success: false,
+        error: 'Demo user not found. Please run demo data seeding first.',
+        hint: 'Run: npm run seed-demo'
+      });
+    }
+
+    // Generate JWT token with demo flag
+    const jwtSecret = process.env.JWT_SECRET || 'sysora-demo-secret-key-2024';
+    const token = jwt.sign(
+      {
+        userId: demoUser._id,
+        hotelId: demoHotel._id,
+        role: demoUser.role,
+        isDemo: true // Mark as demo session
+      },
+      jwtSecret,
+      { expiresIn: '24h' } // Demo sessions expire in 24h
+    );
+
+    // Update last login
+    demoUser.lastLogin = new Date();
+    await demoUser.save();
+
+    console.log('✅ Demo login successful for:', demoUser.email);
+
+    res.json({
+      success: true,
+      message: 'Demo login successful - Welcome to Sysora Demo!',
+      data: {
+        token,
+        user: {
+          id: demoUser._id,
+          fullName: demoUser.fullName,
+          email: demoUser.email,
+          role: demoUser.role,
+          permissions: demoUser.permissions,
+          isDemo: true
+        },
+        hotel: {
+          id: demoHotel._id,
+          name: demoHotel.name,
+          subdomain: demoHotel.subdomain,
+          settings: demoHotel.settings,
+          isDemo: true
+        },
+        demoInfo: {
+          message: 'You are now using a demo account with sample data',
+          features: 'All features are available for testing',
+          duration: '24 hours session',
+          dataReset: 'Demo data resets daily'
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Demo login error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Demo login failed',
+      details: error.message // Always show error details for debugging
+    });
+  }
+});
+
 // Login user (legacy - for backward compatibility)
 router.post('/login', async (req, res) => {
   try {
@@ -212,13 +309,35 @@ router.post('/register-hotel', async (req, res) => {
       });
     }
 
-    const { fullName, companyName, email, password, employeeCount, subdomain, selectedPlan } = req.body;
+    const {
+      firstName,
+      lastName,
+      hotelName,
+      email,
+      password,
+      phone,
+      position,
+      subdomain,
+      location,
+      agreeToTerms,
+      subscribeNewsletter
+    } = req.body;
+
+    // Create fullName from firstName and lastName
+    const fullName = `${firstName} ${lastName}`.trim();
 
     // Validate required fields
-    if (!fullName || !companyName || !email || !password || !employeeCount || !subdomain) {
+    if (!firstName || !lastName || !hotelName || !email || !password || !subdomain || !location) {
       return res.status(400).json({
-        error: 'All fields are required',
-        required: ['fullName', 'companyName', 'email', 'password', 'employeeCount', 'subdomain']
+        error: 'All required fields must be provided',
+        required: ['firstName', 'lastName', 'hotelName', 'email', 'password', 'subdomain', 'location']
+      });
+    }
+
+    // Validate terms agreement
+    if (!agreeToTerms) {
+      return res.status(400).json({
+        error: 'You must agree to the Terms of Service and Privacy Policy'
       });
     }
 
@@ -250,14 +369,15 @@ router.post('/register-hotel', async (req, res) => {
 
     // Create hotel
     const hotel = new Hotel({
-      name: companyName,
+      name: hotelName,
       subdomain: subdomain.toLowerCase(),
       email: email.toLowerCase(),
+      location: location,
+      employeeCount: '1-10', // Default value for new registrations
       owner: {
         fullName,
         email: email.toLowerCase()
       },
-      employeeCount,
       subscription: {
         plan: 'trial',
         status: 'active',
@@ -271,40 +391,45 @@ router.post('/register-hotel', async (req, res) => {
 
     // Create owner user with provided password
     const user = new User({
+      firstName,
+      lastName,
       fullName,
       email: email.toLowerCase(),
+      phone: phone || '',
+      position: position || 'Owner',
       password: password, // Use the password provided by user
       hotelId: hotel._id,
-      role: 'owner'
+      role: 'owner',
+      subscribeNewsletter: subscribeNewsletter || false
     });
 
     await user.save();
 
-    // Update hotel subscription with selected plan
-    if (selectedPlan) {
-      hotel.subscription.plan = selectedPlan;
-      await hotel.save();
-    }
-
     // Generate JWT token
     const token = generateToken(user._id);
+
+    console.log(`✅ Hotel registration successful: ${hotelName} (${subdomain}) - ${fullName} (${email})`);
 
     // Return success response
     res.status(201).json({
       success: true,
-      message: 'Hotel registered successfully',
+      message: 'Hotel workspace created successfully',
       data: {
         hotel: {
           id: hotel._id,
           name: hotel.name,
           subdomain: hotel.subdomain,
-          workspaceUrl: `https://${hotel.subdomain}.sysora.com`,
-          plan: selectedPlan || 'standard'
+          location: hotel.location,
+          workspaceUrl: `https://${hotel.subdomain}.sysora.app`
         },
         user: {
           id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
           fullName: user.fullName,
           email: user.email,
+          phone: user.phone,
+          position: user.position,
           role: user.role
         },
         token
@@ -493,6 +618,16 @@ router.get('/check-email/:email', async (req, res) => {
       });
     }
 
+    // Check if database is connected
+    if (mongoose.connection.readyState !== 1) {
+      console.log('📧 Database offline - allowing email in demo mode');
+      return res.json({
+        available: true,
+        email: email.toLowerCase(),
+        demo: true
+      });
+    }
+
     // Check if email exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     console.log(`📧 Email check result for ${email.toLowerCase()}: ${existingUser ? 'EXISTS' : 'AVAILABLE'}`);
@@ -504,9 +639,11 @@ router.get('/check-email/:email', async (req, res) => {
 
   } catch (error) {
     console.error('Email check error:', error);
-    res.status(500).json({
-      available: false,
-      error: 'Failed to check email availability'
+    // Return available in demo mode if database fails
+    res.json({
+      available: true,
+      email: email.toLowerCase(),
+      demo: true
     });
   }
 });
@@ -534,6 +671,16 @@ router.get('/check-subdomain/:subdomain', async (req, res) => {
       return res.json({ available: false, error: 'Subdomain is reserved' });
     }
 
+    // Check if database is connected
+    if (mongoose.connection.readyState !== 1) {
+      console.log('🏢 Database offline - allowing subdomain in demo mode');
+      return res.json({
+        available: true,
+        subdomain: subdomain.toLowerCase(),
+        demo: true
+      });
+    }
+
     // Check if subdomain exists
     const existingHotel = await Hotel.findOne({ subdomain: subdomain.toLowerCase() });
     const isAvailable = !existingHotel;
@@ -546,9 +693,11 @@ router.get('/check-subdomain/:subdomain', async (req, res) => {
 
   } catch (error) {
     console.error('Subdomain check error:', error);
-    res.status(500).json({
-      available: false,
-      error: 'Failed to check subdomain availability'
+    // Return available in demo mode if database fails
+    res.json({
+      available: true,
+      subdomain: subdomain.toLowerCase(),
+      demo: true
     });
   }
 });

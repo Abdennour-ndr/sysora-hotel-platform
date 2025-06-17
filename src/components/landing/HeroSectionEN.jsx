@@ -2,6 +2,7 @@ import React from 'react';
 import { CheckCircle, Clock, Shield, Star, Zap } from 'lucide-react';
 import AnimatedCounter from '../AnimatedCounter';
 import DemoTeaser from '../DemoTeaser';
+import DemoLoginButton from '../demo/DemoLoginButton';
 import { PLATFORM_STATS } from '../../constants/promotions';
 
 const HeroSectionEN = ({ onGetStarted }) => {
@@ -65,17 +66,12 @@ const HeroSectionEN = ({ onGetStarted }) => {
                     <Zap className="w-5 h-5 group-hover:animate-pulse" />
                   </span>
                 </button>
-                <button
-                  onClick={() => window.open('/hotel-demo', '_blank')}
-                  className="btn-secondary text-lg px-8 py-4 bg-white hover:bg-gray-100 text-sysora-midnight border border-white rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl font-semibold"
-                >
-                  <span className="flex items-center justify-center space-x-2">
-                    <span>Watch Demo</span>
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z"/>
-                    </svg>
-                  </span>
-                </button>
+                <DemoLoginButton
+                  variant="secondary"
+                  size="large"
+                  showFeatures={false}
+                  className="text-lg px-8 py-4 bg-white hover:bg-gray-100 text-sysora-midnight border border-white rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl font-semibold"
+                />
               </div>
 
               {/* Trust Indicators */}

@@ -1,5 +1,11 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import Hotel from '../models/Hotel.js';
+import User from '../models/User.js';
+import Room from '../models/Room.js';
+import Reservation from '../models/Reservation.js';
+import Guest from '../models/Guest.js';
+import Payment from '../models/Payment.js';
 import { authenticateToken, requirePermission, requireOwner } from '../middleware/auth.js';
 
 const router = express.Router();

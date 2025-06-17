@@ -11,7 +11,9 @@ import SignupForm from '../../components/SignupForm';
 import WorkspaceLoginModal from '../../components/WorkspaceLoginModal';
 import Footer from '../../components/Footer';
 import SysoraLogo from '../../components/SysoraLogo';
+import DemoLoginButton from '../../components/demo/DemoLoginButton';
 import LanguageSelector from '../../components/LanguageSelector';
+import BetaTrustSection from '../../components/landing/BetaTrustSection';
 
 const LandingPageAR = () => {
   const { t } = useLanguage();
@@ -73,17 +75,12 @@ const LandingPageAR = () => {
               <a href="#contact" className="text-gray-600 hover:text-sysora-midnight transition-colors">
                 {t('navigation.contact')}
               </a>
-              <a
-                href="/hotel-demo"
-                target="_blank"
-                rel="noopener noreferrer"
+              <DemoLoginButton
+                variant="link"
+                size="small"
+                showFeatures={false}
                 className="flex items-center space-x-1 space-x-reverse text-sysora-mint hover:text-sysora-midnight transition-colors font-medium"
-              >
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z"/>
-                </svg>
-                <span>عرض توضيحي</span>
-              </a>
+              />
               <button
                 onClick={openLoginModal}
                 className="text-sysora-midnight hover:text-sysora-mint transition-colors font-medium"
@@ -125,17 +122,12 @@ const LandingPageAR = () => {
           <a href="#contact" className="block text-gray-600 hover:text-sysora-midnight transition-colors">
             اتصل بنا
           </a>
-          <a
-            href="/hotel-demo"
-            target="_blank"
-            rel="noopener noreferrer"
+          <DemoLoginButton
+            variant="link"
+            size="small"
+            showFeatures={false}
             className="flex items-center space-x-2 space-x-reverse text-sysora-mint hover:text-sysora-midnight transition-colors font-medium py-2"
-          >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z"/>
-            </svg>
-            <span>عرض توضيحي</span>
-          </a>
+          />
           <div className="pt-3 border-t border-gray-200 space-y-3">
             <button
               onClick={openLoginModal}
@@ -157,6 +149,7 @@ const LandingPageAR = () => {
       <main className="pt-16">
         <HeroSectionAR onGetStarted={openSignupModal} />
         <FeaturedModule onCreateAccount={openSignupModal} />
+        <BetaTrustSection />
         <DemoHook />
         <Testimonials />
         <PricingSection />

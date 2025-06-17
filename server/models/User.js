@@ -3,6 +3,14 @@ import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
   // Basic Information
+  firstName: {
+    type: String,
+    trim: true
+  },
+  lastName: {
+    type: String,
+    trim: true
+  },
   fullName: {
     type: String,
     required: true,
@@ -19,6 +27,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: 6
+  },
+  position: {
+    type: String,
+    trim: true
   },
 
   // Hotel Association
@@ -56,6 +68,10 @@ const userSchema = new mongoose.Schema({
   // Profile Information
   phone: String,
   avatar: String,
+  subscribeNewsletter: {
+    type: Boolean,
+    default: false
+  },
 
   // Status
   isActive: {

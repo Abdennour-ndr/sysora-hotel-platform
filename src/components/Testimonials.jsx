@@ -6,67 +6,59 @@ import { PLATFORM_STATS } from '../constants/promotions';
 const Testimonials = () => {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
 
-  // Enhanced testimonials with more realistic and detailed feedback
+  // Beta testimonials - honest feedback from early partners
   const testimonials = [
     {
       id: 1,
-      name: "Sarah Johnson",
-      role: "General Manager",
-      hotel: "Seaside Resort & Spa",
-      location: "California, USA",
-      rating: 5,
-      text: "Sysora has completely transformed how we manage our 120-room resort. The reservation system is intuitive, and the housekeeping coordination has reduced our room turnover time by 30%. Our staff loves how easy it is to use.",
-      highlight: "Reduced room turnover time by 30%",
+      name: "أحمد الحسن",
+      role: "مدير فندق",
+      hotel: "فندق الأندلس",
+      location: "الجزائر العاصمة",
+      rating: 4,
+      text: "نحن من الشركاء الأوائل في برنامج Beta. النظام واعد جداً والفريق متجاوب مع ملاحظاتنا. نتطلع لرؤية المزيد من الميزات قريباً.",
+      highlight: "شريك Beta مبكر",
       verified: true,
-      avatar: "SJ"
+      avatar: "أح",
+      betaPartner: true
     },
     {
       id: 2,
-      name: "Ahmed Al-Rashid",
-      role: "Hotel Owner",
-      hotel: "Desert Oasis Hotel",
-      location: "Dubai, UAE",
-      rating: 5,
-      text: "As a boutique hotel owner, I needed a system that could handle our unique requirements without breaking the bank. Sysora's pricing is fair, and the features are exactly what we needed. The guest management system has improved our service quality significantly.",
-      highlight: "Improved service quality significantly",
+      name: "محمد بن سالم",
+      role: "مالك فندق",
+      hotel: "فندق الواحة",
+      location: "قسنطينة، الجزائر",
+      rating: 4,
+      text: "انضممنا لبرنامج Beta منذ شهر. النظام بسيط ومفهوم، والفريق يستمع لاقتراحاتنا. نحن متفائلون بالمستقبل.",
+      highlight: "نظام بسيط ومفهوم",
       verified: true,
-      avatar: "AR"
+      avatar: "مس",
+      betaPartner: true
     },
     {
       id: 3,
-      name: "Maria Rodriguez",
-      role: "Operations Director",
-      hotel: "City Center Business Hotel",
-      location: "Barcelona, Spain",
-      rating: 5,
-      text: "We switched from a legacy system to Sysora 6 months ago. The migration was smooth, and the support team was exceptional. The real-time analytics help us make better decisions, and our revenue has increased by 15% since implementation.",
-      highlight: "Revenue increased by 15%",
+      name: "ليلى العربي",
+      role: "مديرة الاستقبال",
+      hotel: "فندق الشروق",
+      location: "عنابة، الجزائر",
+      rating: 4,
+      text: "نجرب النظام حالياً ونقدم ملاحظاتنا للفريق. الواجهة جميلة والاستخدام سهل. نتطلع للميزات الجديدة.",
+      highlight: "واجهة جميلة وسهلة",
       verified: true,
-      avatar: "MR"
+      avatar: "لع",
+      betaPartner: true
     },
     {
       id: 4,
-      name: "David Chen",
-      role: "IT Manager",
-      hotel: "Mountain View Lodge",
-      location: "Vancouver, Canada",
-      rating: 5,
-      text: "From a technical perspective, Sysora is solid. The API integration was straightforward, the system is reliable with 99.9% uptime, and the security features meet our compliance requirements. It's a well-built platform.",
-      highlight: "99.9% uptime reliability",
+      name: "عبد الرحمن قاسم",
+      role: "مدير تقني",
+      hotel: "فندق الأمل",
+      location: "تلمسان، الجزائر",
+      rating: 4,
+      text: "من الناحية التقنية، النظام مستقر ومبني بشكل جيد. نحن نساعد في اختبار الميزات الجديدة ونقدر الشفافية في التطوير.",
+      highlight: "نظام مستقر ومبني جيداً",
       verified: true,
-      avatar: "DC"
-    },
-    {
-      id: 5,
-      name: "Lisa Thompson",
-      role: "Front Desk Supervisor",
-      hotel: "Historic Downtown Inn",
-      location: "Boston, USA",
-      rating: 5,
-      text: "Our front desk team adapted to Sysora within days. The check-in/check-out process is so much faster now, and guests appreciate the professional service. The system rarely has issues, and when it does, support responds quickly.",
-      highlight: "Faster check-in/check-out process",
-      verified: true,
-      avatar: "LT"
+      avatar: "عق",
+      betaPartner: true
     }
   ];
 
@@ -89,47 +81,47 @@ const Testimonials = () => {
   const currentReview = testimonials[currentTestimonial];
 
   return (
-    <section className="section-padding bg-gradient-to-br from-sysora-midnight to-blue-900 text-white">
+    <section id="testimonials" className="section-padding bg-gradient-to-br from-sysora-midnight to-blue-900 text-white">
       <div className="container-max">
         {/* Header */}
         <div className="text-center space-y-4 mb-16">
           <div className="inline-flex items-center space-x-2 bg-sysora-mint/20 text-sysora-mint px-6 py-3 rounded-full font-medium">
             <Star className="w-5 h-5" />
-            <span>Customer Success Stories</span>
+            <span>ملاحظات الشركاء الأوائل</span>
           </div>
-          
+
           <h2 className="text-3xl md:text-4xl font-bold">
-            Trusted by Hotels Worldwide
+            نبني الثقة مع شركائنا
           </h2>
-          
+
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            See how hotel owners and managers are transforming their operations with Sysora
+            استمع لآراء الفنادق التي تشاركنا رحلة تطوير أفضل منصة إدارة فنادق
           </p>
         </div>
 
-        {/* Stats Row */}
+        {/* Beta Stats Row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
           <div className="text-center">
             <div className="text-3xl font-bold text-sysora-mint">
-              {PLATFORM_STATS.hotels.value}{PLATFORM_STATS.hotels.suffix}
+              Beta
             </div>
-            <div className="text-sm text-gray-300">Active Hotels</div>
+            <div className="text-sm text-gray-300">شركاء التجربة</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-sysora-mint">4.9/5</div>
-            <div className="text-sm text-gray-300">Average Rating</div>
+            <div className="text-3xl font-bold text-sysora-mint">إيجابية</div>
+            <div className="text-sm text-gray-300">ملاحظات الشركاء</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold text-sysora-mint">
-              {PLATFORM_STATS.bookings.value}{PLATFORM_STATS.bookings.suffix}
+              نشطة
             </div>
-            <div className="text-sm text-gray-300">Bookings Processed</div>
+            <div className="text-sm text-gray-300">اختبارات يومية</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold text-sysora-mint">
               {PLATFORM_STATS.uptime.value}{PLATFORM_STATS.uptime.suffix}
             </div>
-            <div className="text-sm text-gray-300">System Uptime</div>
+            <div className="text-sm text-gray-300">استقرار النظام</div>
           </div>
         </div>
 
@@ -154,11 +146,19 @@ const Testimonials = () => {
                   ))}
                 </div>
                 
+                {/* Beta Partner Badge */}
+                {currentReview.betaPartner && (
+                  <div className="inline-flex items-center space-x-1 bg-sysora-mint/20 text-sysora-mint px-2 py-1 rounded-full text-xs mt-2">
+                    <Star className="w-3 h-3" />
+                    <span>شريك Beta</span>
+                  </div>
+                )}
+
                 {/* Verified Badge */}
-                {currentReview.verified && (
+                {currentReview.verified && !currentReview.betaPartner && (
                   <div className="inline-flex items-center space-x-1 bg-green-500/20 text-green-400 px-2 py-1 rounded-full text-xs mt-2">
                     <CheckCircle className="w-3 h-3" />
-                    <span>Verified Customer</span>
+                    <span>عميل موثق</span>
                   </div>
                 )}
               </div>
@@ -214,10 +214,10 @@ const Testimonials = () => {
         {/* Bottom CTA */}
         <div className="text-center mt-16">
           <div className="space-y-4">
-            <h3 className="text-2xl font-bold">Join Hundreds of Successful Hotels</h3>
-            <p className="text-gray-300">Start your free trial today and see the difference Sysora can make</p>
+            <h3 className="text-2xl font-bold">انضم لبرنامج Beta</h3>
+            <p className="text-gray-300">كن جزءاً من رحلة بناء أفضل منصة إدارة فنادق واحصل على وصول مبكر</p>
             <button className="bg-sysora-mint hover:bg-sysora-mint/90 text-sysora-midnight font-semibold py-4 px-8 rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl">
-              Start Free Trial
+              انضم للبرنامج
             </button>
           </div>
         </div>

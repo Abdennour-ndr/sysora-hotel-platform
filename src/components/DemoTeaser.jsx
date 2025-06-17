@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Play, Users, TrendingUp, Clock, Star, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import DemoLoginButton from './demo/DemoLoginButton';
 
 const DemoTeaser = () => {
   const { language } = useLanguage();
@@ -18,7 +19,7 @@ const DemoTeaser = () => {
         "تقارير مالية فورية",
         "إدارة الغرف والخدمات"
       ],
-      cta: "ابدأ العرض التوضيحي",
+      cta: "دخول مباشر للحساب التجريبي",
       stats: {
         users: "مستخدم نشط",
         rating: "تقييم",
@@ -40,7 +41,7 @@ const DemoTeaser = () => {
         "Instant Financial Reports", 
         "Room & Service Management"
       ],
-      cta: "Start Demo",
+      cta: "Enter Demo Account",
       stats: {
         users: "active users",
         rating: "rating",
@@ -88,8 +89,50 @@ const DemoTeaser = () => {
     }
   }, [isHovered, t.features.length]);
 
-  const handleDemoClick = () => {
-    window.open('/hotel-demo', '_blank');
+  const handleDemoClick = async () => {
+    try {
+      console.log('🎭 Starting demo login from DemoTeaser...');
+
+      // Call demo login API
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/auth/demo-login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        console.log('✅ Demo login successful:', data.data);
+
+        // Store authentication data directly in localStorage
+        localStorage.setItem('sysora_token', data.data.token);
+        localStorage.setItem('sysora_user', JSON.stringify(data.data.user));
+        localStorage.setItem('sysora_hotel', JSON.stringify(data.data.hotel));
+
+        // Show success message
+        window.showToast && window.showToast(
+          'مرحباً بك في الحساب التجريبي! جميع الميزات متاحة للاستكشاف.',
+          'success'
+        );
+
+        // Redirect to dashboard
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 500);
+
+      } else {
+        throw new Error(data.error || 'فشل في الدخول للحساب التجريبي');
+      }
+
+    } catch (error) {
+      console.error('❌ Demo login error:', error);
+      window.showToast && window.showToast(
+        error.message || 'فشل في الدخول للحساب التجريبي. يرجى المحاولة مرة أخرى.',
+        'error'
+      );
+    }
   };
 
   return (
@@ -172,45 +215,23 @@ const DemoTeaser = () => {
           {/* Right Content - Demo Button */}
           <div className="text-center">
             
-            {/* Main Demo Button */}
-            <button
-              onClick={handleDemoClick}
-              className="relative group/btn w-full max-w-xs mx-auto"
-            >
-              
-              {/* Button Background */}
-              <div className="relative bg-gradient-to-r from-sysora-mint to-sysora-mint/90 hover:from-sysora-mint/90 hover:to-sysora-mint rounded-2xl p-6 transition-all duration-300 transform group-hover/btn:scale-105 shadow-2xl">
-                
-                {/* Play Icon */}
-                <div className="relative mx-auto w-16 h-16 bg-sysora-midnight rounded-full flex items-center justify-center mb-4 group-hover/btn:scale-110 transition-transform duration-300">
-                  <Play className="w-8 h-8 text-sysora-mint ml-1" fill="currentColor" />
-                  
-                  {/* Pulse Rings */}
-                  <div className="absolute inset-0 bg-sysora-mint/30 rounded-full animate-ping"></div>
-                  <div className="absolute inset-2 bg-sysora-mint/20 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
-                </div>
-
-                {/* Text */}
-                <div className="text-sysora-midnight">
-                  <div className="text-lg font-bold mb-1">{t.cta}</div>
-                  <div className="text-sm opacity-80">5 {t.stats.time}</div>
-                </div>
-
-                {/* Arrow */}
-                <ArrowRight className="w-5 h-5 text-sysora-midnight mx-auto mt-3 group-hover/btn:translate-x-1 transition-transform duration-300" />
-              </div>
-
-              {/* Glow Effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-sysora-mint to-sysora-mint/80 rounded-2xl blur-xl opacity-50 group-hover/btn:opacity-75 transition-opacity duration-300 -z-10"></div>
-            </button>
+            {/* Demo Login Button */}
+            <div className="max-w-xs mx-auto">
+              <DemoLoginButton
+                variant="primary"
+                size="large"
+                showFeatures={false}
+                className="w-full"
+              />
+            </div>
 
             {/* Additional Info */}
             <div className="mt-4 text-xs text-white/60 flex items-center justify-center space-x-2">
               <Clock className="w-3 h-3" />
               <span>
-                {language === 'ar' ? 'يفتح في تبويب جديد' :
-                 language === 'fr' ? 'Ouvre dans un nouvel onglet' :
-                 'Opens in new tab'}
+                {language === 'ar' ? 'دخول فوري بدون تسجيل' :
+                 language === 'fr' ? 'Accès instantané sans inscription' :
+                 'Instant access without registration'}
               </span>
             </div>
           </div>

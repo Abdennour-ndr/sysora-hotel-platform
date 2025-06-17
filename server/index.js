@@ -46,24 +46,32 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Connect to MongoDB
-const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://sysora:sysora123@cluster0.mongodb.net/sysora-hotel?retryWrites=true&w=majority&appName=Cluster0';
+const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/sysora-hotel';
 console.log('🔗 Attempting to connect to MongoDB...');
 console.log('📍 MongoDB URI:', mongoUri.replace(/\/\/.*@/, '//***:***@')); // Hide credentials in logs
+
+// Try to connect to MongoDB with fallback to demo mode
+let isConnected = false;
 
 mongoose.connect(mongoUri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+  serverSelectionTimeoutMS: 3000, // Timeout after 3s instead of 30s
   socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
 })
   .then(() => {
     console.log('✅ Connected to MongoDB successfully');
+    isConnected = true;
   })
   .catch((error) => {
     console.error('❌ MongoDB connection error:', error.message);
-    console.log('⚠️ Continuing without database connection...');
+    console.log('⚠️ Continuing in demo mode without database connection...');
+    isConnected = false;
     // Don't exit, continue without database
   });
+
+// Export connection status for use in routes
+export { isConnected };
 
 // API Routes
 app.use('/api/auth', authRoutes);

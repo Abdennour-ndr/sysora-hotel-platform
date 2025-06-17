@@ -15,6 +15,7 @@ kill_timeout = "5s"
   DEFAULT_TIMEZONE = "Africa/Algiers"
   DEFAULT_LANGUAGE = "ar"
   SUPPORTED_LANGUAGES = "ar,en,fr"
+  MONGODB_URI = "mongodb+srv://sysoradb:y7aSBmomOzB52wO3@sysoradb.iera7dr.mongodb.net/sysora-hotel?retryWrites=true&w=majority"
 
 [http_service]
   internal_port = 3000

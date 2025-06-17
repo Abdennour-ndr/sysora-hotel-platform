@@ -275,8 +275,27 @@ router.post('/', authenticateToken, requirePermission('manage_rooms'), upload.ar
 });
 
 // Update room
-router.put('/:id', authenticateToken, requirePermission('manage_rooms'), async (req, res) => {
+router.put('/:id', authenticateToken, requirePermission('manage_rooms'), upload.array('images', 10), async (req, res) => {
   try {
+    console.log('🔄 Updating room with ID:', req.params.id);
+    console.log('📝 Request body:', req.body);
+    console.log('📸 Files received:', req.files ? req.files.length : 0);
+
+    // Parse roomData if it exists (for FormData requests)
+    let roomData = {};
+    if (req.body.roomData) {
+      try {
+        roomData = JSON.parse(req.body.roomData);
+        console.log('📋 Parsed room data:', roomData);
+      } catch (error) {
+        console.error('❌ Error parsing roomData:', error);
+        return res.status(400).json({ error: 'Invalid roomData format' });
+      }
+    } else {
+      // Use direct body data (for JSON requests)
+      roomData = req.body;
+    }
+
     const {
       number,
       name,
@@ -292,7 +311,7 @@ router.put('/:id', authenticateToken, requirePermission('manage_rooms'), async (
       features,
       description,
       notes
-    } = req.body;
+    } = roomData;
 
     // Check if room exists
     const room = await Room.findOne({
@@ -303,6 +322,44 @@ router.put('/:id', authenticateToken, requirePermission('manage_rooms'), async (
 
     if (!room) {
       return res.status(404).json({ error: 'Room not found' });
+    }
+
+    // Process new images if provided
+    let newImages = [];
+    if (req.files && req.files.length > 0) {
+      console.log('📸 Processing new images...');
+
+      req.files.forEach((file, index) => {
+        console.log(`📸 Processing image ${index + 1}:`, file.filename);
+
+        // Get image metadata if provided
+        let imageMetadata = {};
+        try {
+          const metadataKey = `imageData_${index}`;
+          if (req.body[metadataKey]) {
+            imageMetadata = JSON.parse(req.body[metadataKey]);
+          }
+        } catch (error) {
+          console.log(`⚠️ Error parsing metadata for image ${index}:`, error);
+        }
+
+        const imageObj = {
+          filename: file.filename,
+          originalName: file.originalname,
+          path: file.path,
+          size: file.size,
+          mimeType: file.mimetype,
+          isPrimary: imageMetadata.isPrimary || false,
+          description: imageMetadata.description || '',
+          uploadedAt: new Date(),
+          uploadedBy: req.user._id
+        };
+
+        newImages.push(imageObj);
+        console.log(`✅ New image ${index + 1} processed:`, imageObj);
+      });
+
+      console.log(`✅ Total new images processed: ${newImages.length}`);
     }
 
     // If room number is being changed, check for conflicts
@@ -336,6 +393,29 @@ router.put('/:id', authenticateToken, requirePermission('manage_rooms'), async (
     if (description !== undefined) updateData.description = description;
     if (notes !== undefined) updateData.notes = notes;
 
+    // Handle images update
+    if (newImages.length > 0) {
+      // Add new images to existing ones
+      const existingImages = room.images || [];
+      const allImages = [...existingImages, ...newImages];
+
+      // Ensure only one primary image
+      if (newImages.some(img => img.isPrimary)) {
+        // Remove primary flag from existing images
+        allImages.forEach(img => {
+          if (!newImages.includes(img)) {
+            img.isPrimary = false;
+          }
+        });
+      } else if (existingImages.length === 0 && newImages.length > 0) {
+        // Set first new image as primary if no existing images
+        newImages[0].isPrimary = true;
+      }
+
+      updateData.images = allImages;
+      console.log(`📸 Updated images: ${allImages.length} total (${newImages.length} new)`);
+    }
+
     const updatedRoom = await Room.findByIdAndUpdate(
       req.params.id,
       updateData,
@@ -344,11 +424,23 @@ router.put('/:id', authenticateToken, requirePermission('manage_rooms'), async (
 
     res.json({
       success: true,
-      message: 'Room updated successfully',
+      message: `Room updated successfully${newImages.length > 0 ? ` with ${newImages.length} new image(s)` : ''}`,
       data: updatedRoom
     });
   } catch (error) {
     console.error('Update room error:', error);
+
+    // Clean up uploaded files if room update failed
+    if (req.files) {
+      req.files.forEach(file => {
+        try {
+          fs.unlinkSync(file.path);
+        } catch (unlinkError) {
+          console.error('Error deleting file:', unlinkError);
+        }
+      });
+    }
+
     res.status(500).json({ error: 'Failed to update room' });
   }
 });

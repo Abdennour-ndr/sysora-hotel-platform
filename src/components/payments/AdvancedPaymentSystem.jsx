@@ -46,86 +46,172 @@ const AdvancedPaymentSystem = () => {
   const [dateRange, setDateRange] = useState('this_month');
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [selectedReservation, setSelectedReservation] = useState(null);
+  const [showAddPaymentModal, setShowAddPaymentModal] = useState(false);
+  const [reservations, setReservations] = useState([]);
 
-  // Mock data for demonstration
+  // Fetch real data from API
   useEffect(() => {
-    const mockPayments = [
-      {
-        id: 1,
-        paymentNumber: 'PAY240101001',
-        reservationNumber: 'RES240101001',
-        guestName: 'Ahmed Hassan',
-        amount: 25000,
-        currency: 'DZD',
-        method: 'credit_card',
-        status: 'completed',
-        date: '2024-01-15',
-        gateway: 'Stripe',
-        transactionId: 'txn_1234567890',
-        fees: 750,
-        netAmount: 24250
-      },
-      {
-        id: 2,
-        paymentNumber: 'PAY240101002',
-        reservationNumber: 'RES240101002',
-        guestName: 'Sarah Johnson',
-        amount: 45000,
-        currency: 'DZD',
-        method: 'bank_transfer',
-        status: 'pending',
-        date: '2024-01-16',
-        gateway: 'CIB',
-        transactionId: 'txn_1234567891',
-        fees: 0,
-        netAmount: 45000
-      },
-      {
-        id: 3,
-        paymentNumber: 'PAY240101003',
-        reservationNumber: 'RES240101003',
-        guestName: 'Mohamed Benali',
-        amount: 18000,
-        currency: 'DZD',
-        method: 'cash',
-        status: 'completed',
-        date: '2024-01-17',
-        gateway: null,
-        transactionId: null,
-        fees: 0,
-        netAmount: 18000
-      }
-    ];
+    fetchPayments();
+    fetchReservations();
+  }, []);
 
-    const mockStats = {
-      totalRevenue: 2450000,
-      totalPayments: 156,
-      averagePayment: 15705,
-      pendingAmount: 125000,
-      completedPayments: 142,
-      failedPayments: 8,
-      refundedAmount: 45000,
-      monthlyGrowth: 12.5,
-      paymentMethods: {
-        credit_card: 45,
-        bank_transfer: 30,
-        cash: 20,
-        mobile_payment: 5
-      },
-      dailyRevenue: [
-        { date: '2024-01-10', amount: 85000 },
-        { date: '2024-01-11', amount: 92000 },
-        { date: '2024-01-12', amount: 78000 },
-        { date: '2024-01-13', amount: 105000 },
-        { date: '2024-01-14', amount: 88000 },
-        { date: '2024-01-15', amount: 115000 },
-        { date: '2024-01-16', amount: 98000 }
-      ]
+  const fetchReservations = async () => {
+    try {
+      const token = localStorage.getItem('sysora_token');
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/reservations`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setReservations(data.data.reservations);
+      }
+    } catch (error) {
+      console.error('Error fetching reservations:', error);
+    }
+  };
+
+  const fetchPayments = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('sysora_token');
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/payments`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        // Transform API data to match component format
+        const transformedPayments = data.data.payments.map(payment => ({
+          id: payment._id,
+          paymentNumber: payment.paymentNumber,
+          reservationNumber: payment.reservationId?.reservationNumber || 'N/A',
+          guestName: payment.reservationId?.guestId ?
+            `${payment.reservationId.guestId.firstName} ${payment.reservationId.guestId.lastName}` : 'Unknown Guest',
+          amount: payment.amount,
+          currency: payment.currency?.code || 'DZD',
+          method: payment.paymentMethod,
+          status: payment.status,
+          date: payment.paymentDate,
+          gateway: payment.gateway || null,
+          transactionId: payment.transactionId || null,
+          fees: payment.fees || 0,
+          netAmount: payment.amount - (payment.fees || 0)
+        }));
+
+        setPayments(transformedPayments);
+
+        // Calculate real stats
+        const totalAmount = transformedPayments.reduce((sum, payment) => sum + payment.amount, 0);
+        const completedPayments = transformedPayments.filter(p => p.status === 'completed').length;
+        const pendingPayments = transformedPayments.filter(p => p.status === 'pending').length;
+        const failedPayments = transformedPayments.filter(p => p.status === 'failed').length;
+        const averagePayment = transformedPayments.length > 0 ? totalAmount / transformedPayments.length : 0;
+
+        // Calculate payment methods distribution
+        const methodCounts = transformedPayments.reduce((acc, payment) => {
+          acc[payment.method] = (acc[payment.method] || 0) + 1;
+          return acc;
+        }, {});
+
+        const totalPaymentsCount = transformedPayments.length;
+        const paymentMethods = Object.keys(methodCounts).reduce((acc, method) => {
+          acc[method] = Math.round((methodCounts[method] / totalPaymentsCount) * 100);
+          return acc;
+        }, {});
+
+        setPaymentStats({
+          totalRevenue: totalAmount,
+          totalPayments: transformedPayments.length,
+          averagePayment: Math.round(averagePayment),
+          pendingAmount: transformedPayments.filter(p => p.status === 'pending').reduce((sum, p) => sum + p.amount, 0),
+          completedPayments,
+          failedPayments,
+          refundedAmount: transformedPayments.filter(p => p.status === 'refunded').reduce((sum, p) => sum + p.amount, 0),
+          monthlyGrowth: 0, // Would need historical data to calculate
+          paymentMethods,
+          dailyRevenue: [] // Would need to group by date
+        });
+      } else {
+        console.error('Failed to fetch payments:', data.error);
+        // Fallback to empty data
+        setPayments([]);
+        setPaymentStats({
+          totalRevenue: 0,
+          totalPayments: 0,
+          averagePayment: 0,
+          pendingAmount: 0,
+          completedPayments: 0,
+          failedPayments: 0,
+          refundedAmount: 0,
+          monthlyGrowth: 0,
+          paymentMethods: {},
+          dailyRevenue: []
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching payments:', error);
+      // Fallback to empty data
+      setPayments([]);
+      setPaymentStats({
+        totalRevenue: 0,
+        totalPayments: 0,
+        averagePayment: 0,
+        pendingAmount: 0,
+        completedPayments: 0,
+        failedPayments: 0,
+        refundedAmount: 0,
+        monthlyGrowth: 0,
+        paymentMethods: {},
+        dailyRevenue: []
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddPayment = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+
+    const paymentData = {
+      reservationId: formData.get('reservationId'),
+      amount: parseFloat(formData.get('amount')),
+      paymentMethod: formData.get('paymentMethod'),
+      description: formData.get('description'),
+      notes: formData.get('notes')
     };
 
-    setPayments(mockPayments);
-    setPaymentStats(mockStats);
-  }, []);
+    try {
+      const token = localStorage.getItem('sysora_token');
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/payments`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(paymentData)
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        window.showToast && window.showToast('Payment added successfully', 'success');
+        setShowAddPaymentModal(false);
+        fetchPayments(); // Refresh payments list
+      } else {
+        window.showToast && window.showToast(data.error || 'Failed to add payment', 'error');
+      }
+    } catch (error) {
+      console.error('Error adding payment:', error);
+      window.showToast && window.showToast('Error adding payment', 'error');
+    }
+  };
 
   // Filter payments
   const filteredPayments = payments.filter(payment => {
@@ -272,6 +358,14 @@ const AdvancedPaymentSystem = () => {
               <span>Export</span>
             </button>
             
+            <button
+              onClick={() => setShowAddPaymentModal(true)}
+              className="flex items-center justify-center space-x-3 bg-green-600 text-white px-8 py-4 rounded-2xl hover:bg-green-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl hover:scale-105"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Add Payment</span>
+            </button>
+
             <button
               onClick={() => setShowInvoiceModal(true)}
               className="flex items-center justify-center space-x-3 bg-sysora-mint text-sysora-midnight px-8 py-4 rounded-2xl hover:bg-sysora-mint/90 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl hover:scale-105 border border-sysora-mint/20"
@@ -865,6 +959,108 @@ const AdvancedPaymentSystem = () => {
       {/* Currencies Tab Content */}
       {activeTab === 'currencies' && (
         <CurrencyManager />
+      )}
+
+      {/* Add Payment Modal */}
+      {showAddPaymentModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-gray-900">Add New Payment</h3>
+              <button
+                onClick={() => setShowAddPaymentModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                ×
+              </button>
+            </div>
+
+            <form onSubmit={handleAddPayment}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Reservation *</label>
+                  <select
+                    name="reservationId"
+                    required
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                  >
+                    <option value="">Select Reservation</option>
+                    {reservations.map((reservation) => (
+                      <option key={reservation._id} value={reservation._id}>
+                        {reservation.reservationNumber} - {reservation.guestId?.firstName} {reservation.guestId?.lastName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Amount *</label>
+                  <input
+                    type="number"
+                    name="amount"
+                    required
+                    min="0"
+                    step="0.01"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                    placeholder="0.00"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Payment Method *</label>
+                  <select
+                    name="paymentMethod"
+                    required
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                  >
+                    <option value="">Select Payment Method</option>
+                    <option value="cash">💵 Cash</option>
+                    <option value="credit_card">💳 Credit Card</option>
+                    <option value="debit_card">💳 Debit Card</option>
+                    <option value="bank_transfer">🏦 Bank Transfer</option>
+                    <option value="mobile_payment">📱 Mobile Payment</option>
+                  </select>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                  <input
+                    type="text"
+                    name="description"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                    placeholder="Payment description..."
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                  <textarea
+                    name="notes"
+                    rows="3"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                    placeholder="Additional notes..."
+                  ></textarea>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-4 mt-8">
+                <button
+                  type="button"
+                  onClick={() => setShowAddPaymentModal(false)}
+                  className="px-6 py-3 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-semibold"
+                >
+                  Add Payment
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
       {/* Invoice Generator Modal */}

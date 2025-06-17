@@ -26,6 +26,10 @@ const hotelSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  location: {
+    type: String,
+    trim: true
+  },
 
   // Address Information
   address: {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Play, X, Eye, Sparkles } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import DemoLoginButton from './demo/DemoLoginButton';
 
 const FloatingDemoButton = () => {
   const { language } = useLanguage();
@@ -31,8 +32,8 @@ const FloatingDemoButton = () => {
 
   const translations = {
     ar: {
-      text: "شاهد العرض التوضيحي",
-      subtitle: "تجربة مجانية",
+      text: "دخول مباشر للحساب التجريبي",
+      subtitle: "جلسة 24 ساعة مجانية",
       dismiss: "إخفاء"
     },
     en: {
@@ -49,9 +50,50 @@ const FloatingDemoButton = () => {
 
   const t = translations[language] || translations.en;
 
-  const handleDemoClick = () => {
-    window.open('/hotel-demo', '_blank');
-    // Optional: Track analytics
+  const handleDemoClick = async () => {
+    try {
+      console.log('🎭 Starting demo login from FloatingDemoButton...');
+
+      // Call demo login API
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/auth/demo-login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        console.log('✅ Demo login successful:', data.data);
+
+        // Store authentication data directly in localStorage
+        localStorage.setItem('sysora_token', data.data.token);
+        localStorage.setItem('sysora_user', JSON.stringify(data.data.user));
+        localStorage.setItem('sysora_hotel', JSON.stringify(data.data.hotel));
+
+        // Show success message
+        window.showToast && window.showToast(
+          'مرحباً بك في الحساب التجريبي! جميع الميزات متاحة للاستكشاف.',
+          'success'
+        );
+
+        // Redirect to dashboard
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 500);
+
+      } else {
+        throw new Error(data.error || 'فشل في الدخول للحساب التجريبي');
+      }
+
+    } catch (error) {
+      console.error('❌ Demo login error:', error);
+      window.showToast && window.showToast(
+        error.message || 'فشل في الدخول للحساب التجريبي. يرجى المحاولة مرة أخرى.',
+        'error'
+      );
+    }
   };
 
   const handleDismiss = () => {
@@ -72,27 +114,15 @@ const FloatingDemoButton = () => {
         {/* Glow Effect */}
         <div className="absolute inset-0 bg-gradient-to-r from-sysora-mint to-sysora-mint/80 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
         
-        {/* Button Content */}
-        <button
-          onClick={handleDemoClick}
-          className="relative bg-gradient-to-r from-sysora-mint to-sysora-mint/90 hover:from-sysora-mint/90 hover:to-sysora-mint text-sysora-midnight font-semibold px-5 py-3 rounded-2xl shadow-2xl transition-all duration-300 transform hover:scale-105 flex items-center space-x-3 border-2 border-white/20"
-        >
-          
-          {/* Play Icon with Animation */}
-          <div className="relative">
-            <Play className="w-5 h-5" fill="currentColor" />
-            <div className="absolute inset-0 bg-sysora-midnight/20 rounded-full animate-ping"></div>
-          </div>
-          
-          {/* Text */}
-          <div className="text-left">
-            <div className="text-sm font-bold">{t.text}</div>
-            <div className="text-xs opacity-80">{t.subtitle}</div>
-          </div>
-          
-          {/* Sparkle Effect */}
-          <Sparkles className="w-4 h-4 animate-pulse" />
-        </button>
+        {/* Demo Login Button */}
+        <div className="relative">
+          <DemoLoginButton
+            variant="primary"
+            size="small"
+            showFeatures={false}
+            className="text-sm"
+          />
+        </div>
 
         {/* Dismiss Button */}
         <button

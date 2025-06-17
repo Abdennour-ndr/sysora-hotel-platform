@@ -1,6 +1,7 @@
 import React from 'react';
 import AnimatedCounter from '../AnimatedCounter';
 import DemoTeaser from '../DemoTeaser';
+import DemoLoginButton from '../demo/DemoLoginButton';
 import { PLATFORM_STATS } from '../../constants/promotions';
 
 const HeroSectionFR = ({ onGetStarted }) => {
@@ -35,12 +36,12 @@ const HeroSectionFR = ({ onGetStarted }) => {
               >
                 Commencer Gratuitement
               </button>
-              <button
-                onClick={() => window.open('/hotel-demo', '_blank')}
-                className="btn-secondary text-lg px-8 py-4 bg-white hover:bg-gray-100 text-sysora-midnight border border-white rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl font-semibold"
-              >
-                Voir la Démo
-              </button>
+              <DemoLoginButton
+                variant="secondary"
+                size="large"
+                showFeatures={false}
+                className="text-lg px-8 py-4 bg-white hover:bg-gray-100 text-sysora-midnight border border-white rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl font-semibold"
+              />
             </div>
 
             {/* Enhanced Stats */}

@@ -18,8 +18,8 @@ const paymentSchema = new mongoose.Schema({
   // Payment Details
   paymentNumber: {
     type: String,
-    required: true,
     unique: true
+    // removed required: true - will be generated automatically
   },
   
   amount: {
@@ -203,34 +203,40 @@ const paymentSchema = new mongoose.Schema({
   }
 });
 
-// Update the updatedAt field before saving
-paymentSchema.pre('save', function(next) {
-  this.updatedAt = new Date();
-  next();
-});
-
-// Generate payment number before saving
+// Update the updatedAt field and generate payment number before saving
 paymentSchema.pre('save', async function(next) {
-  if (this.isNew && !this.paymentNumber) {
-    const date = new Date();
-    const year = date.getFullYear().toString().slice(-2);
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    
-    // Find the last payment for today
-    const lastPayment = await this.constructor.findOne({
-      paymentNumber: new RegExp(`^PAY${year}${month}${day}`)
-    }).sort({ paymentNumber: -1 });
-    
-    let sequence = 1;
-    if (lastPayment) {
-      const lastSequence = parseInt(lastPayment.paymentNumber.slice(-4));
-      sequence = lastSequence + 1;
+  try {
+    // Update the updatedAt field
+    this.updatedAt = new Date();
+
+    // Generate payment number for new payments
+    if (this.isNew && !this.paymentNumber) {
+      const date = new Date();
+      const year = date.getFullYear().toString().slice(-2);
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+
+      // Find the last payment for today
+      const lastPayment = await this.constructor.findOne({
+        paymentNumber: new RegExp(`^PAY${year}${month}${day}`)
+      }).sort({ paymentNumber: -1 });
+
+      let sequence = 1;
+      if (lastPayment && lastPayment.paymentNumber) {
+        const lastSequence = parseInt(lastPayment.paymentNumber.slice(-4));
+        if (!isNaN(lastSequence)) {
+          sequence = lastSequence + 1;
+        }
+      }
+
+      this.paymentNumber = `PAY${year}${month}${day}${sequence.toString().padStart(4, '0')}`;
+      console.log('Generated payment number:', this.paymentNumber);
     }
-    
-    this.paymentNumber = `PAY${year}${month}${day}${sequence.toString().padStart(4, '0')}`;
+    next();
+  } catch (error) {
+    console.error('Error in payment pre-save hook:', error);
+    next(error);
   }
-  next();
 });
 
 // Virtual for net amount (amount - fees)

@@ -20,7 +20,7 @@ import {
   Zap
 } from 'lucide-react';
 
-const ContextMenu = ({ x, y, room, onClose, onStatusChange, onEdit }) => {
+const ContextMenu = ({ x, y, room, onClose, onStatusChange, onEdit, onEditRoom }) => {
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -89,7 +89,7 @@ const ContextMenu = ({ x, y, room, onClose, onStatusChange, onEdit }) => {
           label: 'Edit Room',
           shortcut: 'F2',
           action: () => {
-            console.log('Edit room:', room.id);
+            onEditRoom && onEditRoom(room);
             onClose();
           }
         },

@@ -50,6 +50,7 @@ import InlineEditField from './InlineEditField';
 import ContextMenu from './ContextMenu';
 import BulkActionsBar from './BulkActionsBar';
 import KeyboardShortcutsHelp from './KeyboardShortcutsHelp';
+import ConfirmationDialog from '../common/ConfirmationDialog';
 
 const AdvancedRoomManagement = () => {
   // State Management
@@ -66,6 +67,15 @@ const AdvancedRoomManagement = () => {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [editingField, setEditingField] = useState(null);
   const [contextMenu, setContextMenu] = useState({ show: false, x: 0, y: 0, room: null });
+
+  // Modal states
+  const [showAddRoomModal, setShowAddRoomModal] = useState(false);
+  const [showEditRoomModal, setShowEditRoomModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [roomToDelete, setRoomToDelete] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   
   // Refs
   const searchInputRef = useRef(null);
@@ -83,82 +93,76 @@ const AdvancedRoomManagement = () => {
     })
   );
 
-  // Mock data for demonstration
+  // Load real data from API
   useEffect(() => {
-    const mockRooms = [
-      {
-        id: '1',
-        number: '101',
-        name: 'Deluxe Ocean View',
-        type: 'deluxe',
-        status: 'available',
-        basePrice: 15000,
-        currency: 'DZD',
-        maxOccupancy: 2,
-        floor: 1,
-        amenities: ['wifi', 'ac', 'tv', 'minibar'],
-        images: [],
-        description: 'Beautiful ocean view room with modern amenities',
-        lastCleaned: new Date(),
-        isSelected: false,
-        order: 0
-      },
-      {
-        id: '2',
-        number: '102',
-        name: 'Standard Room',
-        type: 'standard',
-        status: 'occupied',
-        basePrice: 8000,
-        currency: 'DZD',
-        maxOccupancy: 2,
-        floor: 1,
-        amenities: ['wifi', 'ac', 'tv'],
-        images: [],
-        description: 'Comfortable standard room',
-        lastCleaned: new Date(),
-        isSelected: false,
-        order: 1
-      },
-      {
-        id: '3',
-        number: '201',
-        name: 'Presidential Suite',
-        type: 'presidential',
-        status: 'cleaning',
-        basePrice: 35000,
-        currency: 'DZD',
-        maxOccupancy: 4,
-        floor: 2,
-        amenities: ['wifi', 'ac', 'tv', 'minibar', 'jacuzzi', 'balcony'],
-        images: [],
-        description: 'Luxurious presidential suite with premium amenities',
-        lastCleaned: new Date(),
-        isSelected: false,
-        order: 2
-      },
-      {
-        id: '4',
-        number: '202',
-        name: 'Family Suite',
-        type: 'suite',
-        status: 'maintenance',
-        basePrice: 22000,
-        currency: 'DZD',
-        maxOccupancy: 6,
-        floor: 2,
-        amenities: ['wifi', 'ac', 'tv', 'kitchenette'],
-        images: [],
-        description: 'Spacious family suite with kitchenette',
-        lastCleaned: new Date(),
-        isSelected: false,
-        order: 3
+    const loadRooms = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('sysora_token');
+
+        if (!token) {
+          console.error('No auth token found');
+          setLoading(false);
+          return;
+        }
+
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/rooms`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data.rooms) {
+            const formattedRooms = data.data.rooms.map((room, index) => ({
+              id: room._id,
+              number: room.number,
+              name: room.name || `Room ${room.number}`,
+              type: room.type,
+              status: room.status,
+              basePrice: room.basePrice,
+              currency: room.currency || 'DZD',
+              maxOccupancy: room.maxOccupancy,
+              bedCount: room.bedCount,
+              bedType: room.bedType,
+              floor: room.floor,
+              size: room.size,
+              amenities: room.amenities || [],
+              features: room.features || {},
+              images: room.images || [],
+              description: room.description || `${room.type} room`,
+              lastCleaned: room.lastCleaned ? new Date(room.lastCleaned) : new Date(),
+              isSelected: false,
+              order: index
+            }));
+
+            setRooms(formattedRooms);
+            setFilteredRooms(formattedRooms);
+          } else {
+            console.error('Failed to load rooms:', data.error);
+            // Fallback to empty array
+            setRooms([]);
+            setFilteredRooms([]);
+          }
+        } else {
+          console.error('Failed to fetch rooms:', response.status);
+          // Fallback to empty array
+          setRooms([]);
+          setFilteredRooms([]);
+        }
+      } catch (error) {
+        console.error('Error loading rooms:', error);
+        // Fallback to empty array
+        setRooms([]);
+        setFilteredRooms([]);
+      } finally {
+        setLoading(false);
       }
-    ];
-    
-    setRooms(mockRooms);
-    setFilteredRooms(mockRooms);
-    setLoading(false);
+    };
+
+    loadRooms();
   }, []);
 
   // Filter and search logic
@@ -343,6 +347,84 @@ const AdvancedRoomManagement = () => {
     return icons[amenity] || Star;
   };
 
+  // Room management functions
+  const handleAddRoom = async (roomData) => {
+    try {
+      const token = localStorage.getItem('sysora_token');
+
+      // Create FormData to match API expectations
+      const formData = new FormData();
+      formData.append('roomData', JSON.stringify(roomData));
+
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/rooms`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+          // Don't set Content-Type for FormData
+        },
+        body: formData
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        // Reload rooms to get updated data
+        window.location.reload(); // Simple reload for now
+        window.showToast && window.showToast('Room added successfully', 'success');
+        setShowAddRoomModal(false);
+      } else {
+        window.showToast && window.showToast(data.error || 'Failed to add room', 'error');
+      }
+    } catch (error) {
+      console.error('Error adding room:', error);
+      window.showToast && window.showToast('Error adding room', 'error');
+    }
+  };
+
+  const handleEditRoom = (room) => {
+    setSelectedRoom(room);
+    setShowEditRoomModal(true);
+  };
+
+  const handleDeleteRoom = (room) => {
+    setRoomToDelete(room);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDeleteRoom = async () => {
+    if (!roomToDelete) return;
+
+    setDeleteLoading(true);
+    try {
+      const token = localStorage.getItem('sysora_token');
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/rooms/${roomToDelete._id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setRooms(prev => prev.filter(room => room._id !== roomToDelete._id));
+        window.showToast && window.showToast('Room deleted successfully', 'success');
+        setShowDeleteConfirm(false);
+        setRoomToDelete(null);
+      } else {
+        window.showToast && window.showToast(data.error || 'Failed to delete room', 'error');
+      }
+    } catch (error) {
+      console.error('Error deleting room:', error);
+      window.showToast && window.showToast('Error deleting room', 'error');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const refreshRooms = () => {
+    window.location.reload(); // Simple refresh for now
+  };
+
   return (
     <div className="space-y-6" ref={containerRef}>
       {/* Enhanced Header */}
@@ -384,12 +466,18 @@ const AdvancedRoomManagement = () => {
               <span className="sm:hidden">Shortcuts</span>
             </button>
             
-            <button className="flex items-center space-x-2 p-4 bg-blue-600/90 hover:bg-blue-600 rounded-2xl transition-colors">
+            <button
+              onClick={() => setShowSettingsModal(true)}
+              className="flex items-center space-x-2 p-4 bg-blue-600/90 hover:bg-blue-600 rounded-2xl transition-colors"
+            >
               <Settings className="w-5 h-5" />
               <span>Settings</span>
             </button>
-            
-            <button className="flex items-center space-x-3 bg-sysora-mint text-sysora-midnight px-8 py-4 rounded-2xl hover:bg-sysora-mint/90 transition-colors font-semibold">
+
+            <button
+              onClick={() => setShowAddRoomModal(true)}
+              className="flex items-center space-x-3 bg-sysora-mint text-sysora-midnight px-8 py-4 rounded-2xl hover:bg-sysora-mint/90 transition-colors font-semibold"
+            >
               <Plus className="w-5 h-5" />
               <span>Add Room</span>
             </button>
@@ -569,12 +657,413 @@ const AdvancedRoomManagement = () => {
           onClose={() => setContextMenu({ show: false, x: 0, y: 0, room: null })}
           onStatusChange={handleStatusChange}
           onEdit={(field) => setEditingField(`${contextMenu.room.id}-${field}`)}
+          onEditRoom={handleEditRoom}
         />
       )}
 
       {/* Keyboard Shortcuts Help */}
       {showShortcuts && (
         <KeyboardShortcutsHelp onClose={() => setShowShortcuts(false)} />
+      )}
+
+      {/* Add Room Modal */}
+      {showAddRoomModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-gray-900">Add New Room</h3>
+              <button
+                onClick={() => setShowAddRoomModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.target);
+              const roomData = {
+                number: formData.get('number'),
+                name: formData.get('name'),
+                type: formData.get('type'),
+                maxOccupancy: parseInt(formData.get('maxOccupancy')),
+                basePrice: parseFloat(formData.get('basePrice')),
+                floor: parseInt(formData.get('floor')),
+                size: parseFloat(formData.get('size')),
+                bedCount: parseInt(formData.get('bedCount')),
+                bedType: formData.get('bedType'),
+                amenities: formData.getAll('amenities'),
+                description: formData.get('description')
+              };
+              handleAddRoom(roomData);
+            }}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Room Number *</label>
+                  <input
+                    type="text"
+                    name="number"
+                    required
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                    placeholder="e.g., 101"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Room Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                    placeholder="e.g., Deluxe Ocean View"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Room Type *</label>
+                  <select
+                    name="type"
+                    required
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                  >
+                    <option value="">Select Type</option>
+                    <option value="standard">Standard</option>
+                    <option value="deluxe">Deluxe</option>
+                    <option value="suite">Suite</option>
+                    <option value="presidential">Presidential</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Max Occupancy *</label>
+                  <input
+                    type="number"
+                    name="maxOccupancy"
+                    required
+                    min="1"
+                    max="10"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                    placeholder="2"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Base Price (DZD) *</label>
+                  <input
+                    type="number"
+                    name="basePrice"
+                    required
+                    min="0"
+                    step="0.01"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                    placeholder="8000"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Floor</label>
+                  <input
+                    type="number"
+                    name="floor"
+                    min="1"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                    placeholder="1"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea
+                  name="description"
+                  rows="3"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                  placeholder="Room description..."
+                ></textarea>
+              </div>
+
+              <div className="flex justify-end space-x-4 mt-8">
+                <button
+                  type="button"
+                  onClick={() => setShowAddRoomModal(false)}
+                  className="px-6 py-3 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-3 bg-sysora-mint text-sysora-midnight rounded-xl hover:bg-sysora-mint/90 transition-colors font-semibold"
+                >
+                  Add Room
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Settings Modal */}
+      {showSettingsModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-gray-900">Room Settings</h3>
+              <button
+                onClick={() => setShowSettingsModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <button
+                onClick={refreshRooms}
+                className="w-full flex items-center space-x-3 p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors"
+              >
+                <RefreshCw className="w-5 h-5 text-gray-600" />
+                <span className="text-gray-700">Refresh Rooms</span>
+              </button>
+
+              <button className="w-full flex items-center space-x-3 p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors">
+                <Settings className="w-5 h-5 text-gray-600" />
+                <span className="text-gray-700">Room Preferences</span>
+              </button>
+
+              <button className="w-full flex items-center space-x-3 p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors">
+                <Filter className="w-5 h-5 text-gray-600" />
+                <span className="text-gray-700">Default Filters</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Room Modal */}
+      {showEditRoomModal && selectedRoom && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-gray-900">Edit Room: {selectedRoom.number}</h3>
+              <button
+                onClick={() => {
+                  setShowEditRoomModal(false);
+                  setSelectedRoom(null);
+                }}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              const formData = new FormData(e.target);
+
+              const roomData = {
+                number: formData.get('number'),
+                name: formData.get('name'),
+                type: formData.get('type'),
+                maxOccupancy: parseInt(formData.get('maxOccupancy')),
+                basePrice: parseFloat(formData.get('basePrice')),
+                floor: parseInt(formData.get('floor')),
+                size: parseFloat(formData.get('size')),
+                bedCount: parseInt(formData.get('bedCount')),
+                bedType: formData.get('bedType'),
+                amenities: Array.from(formData.getAll('amenities')),
+                description: formData.get('description')
+              };
+
+              try {
+                const token = localStorage.getItem('sysora_token');
+                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/rooms/${selectedRoom._id}`, {
+                  method: 'PUT',
+                  headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify(roomData)
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                  window.showToast && window.showToast('Room updated successfully', 'success');
+                  setShowEditRoomModal(false);
+                  setSelectedRoom(null);
+                  window.location.reload(); // Simple refresh
+                } else {
+                  window.showToast && window.showToast(data.error || 'Failed to update room', 'error');
+                }
+              } catch (error) {
+                console.error('Error updating room:', error);
+                window.showToast && window.showToast('Error updating room', 'error');
+              }
+            }}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Room Number *</label>
+                  <input
+                    type="text"
+                    name="number"
+                    required
+                    defaultValue={selectedRoom.number}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Room Name *</label>
+                  <input
+                    type="text"
+                    name="name"
+                    required
+                    defaultValue={selectedRoom.name}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Room Type *</label>
+                  <select
+                    name="type"
+                    required
+                    defaultValue={selectedRoom.type}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                  >
+                    <option value="standard">Standard</option>
+                    <option value="deluxe">Deluxe</option>
+                    <option value="suite">Suite</option>
+                    <option value="presidential">Presidential</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Max Occupancy *</label>
+                  <input
+                    type="number"
+                    name="maxOccupancy"
+                    required
+                    min="1"
+                    max="10"
+                    defaultValue={selectedRoom.maxOccupancy}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Base Price (DZD) *</label>
+                  <input
+                    type="number"
+                    name="basePrice"
+                    required
+                    min="0"
+                    step="0.01"
+                    defaultValue={selectedRoom.basePrice}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Floor</label>
+                  <input
+                    type="number"
+                    name="floor"
+                    min="0"
+                    defaultValue={selectedRoom.floor}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Size (m²)</label>
+                  <input
+                    type="number"
+                    name="size"
+                    min="0"
+                    step="0.1"
+                    defaultValue={selectedRoom.size}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Bed Count</label>
+                  <input
+                    type="number"
+                    name="bedCount"
+                    min="1"
+                    max="5"
+                    defaultValue={selectedRoom.bedCount}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Bed Type</label>
+                  <select
+                    name="bedType"
+                    defaultValue={selectedRoom.bedType}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                  >
+                    <option value="single">Single</option>
+                    <option value="double">Double</option>
+                    <option value="queen">Queen</option>
+                    <option value="king">King</option>
+                  </select>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Amenities</label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {['WiFi', 'Air Conditioning', 'Television', 'Mini Fridge', 'Balcony', 'Room Service', 'Safe', 'Bathtub'].map((amenity) => (
+                      <label key={amenity} className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          name="amenities"
+                          value={amenity}
+                          defaultChecked={selectedRoom.amenities?.includes(amenity)}
+                          className="w-4 h-4 text-sysora-mint border-gray-300 rounded focus:ring-sysora-mint"
+                        />
+                        <span className="text-sm text-gray-700">{amenity}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                  <textarea
+                    name="description"
+                    rows="4"
+                    defaultValue={selectedRoom.description}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sysora-mint"
+                    placeholder="Room description..."
+                  ></textarea>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-4 mt-8">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEditRoomModal(false);
+                    setSelectedRoom(null);
+                  }}
+                  className="px-6 py-3 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-3 bg-sysora-mint text-sysora-midnight rounded-xl hover:bg-sysora-mint/90 transition-colors font-semibold"
+                >
+                  Update Room
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -11,6 +11,7 @@ import SignupForm from '../../components/SignupForm';
 import LoginModal from '../../components/LoginModalEN';
 import Footer from '../../components/Footer';
 import SysoraLogo from '../../components/SysoraLogo';
+import DemoLoginButton from '../../components/demo/DemoLoginButton';
 
 const LandingPageEN = () => {
   const [showSignupModal, setShowSignupModal] = useState(false);
@@ -69,17 +70,12 @@ const LandingPageEN = () => {
               <a href="#contact" className="text-gray-600 hover:text-sysora-midnight transition-colors">
                 Contact
               </a>
-              <a
-                href="/hotel-demo"
-                target="_blank"
-                rel="noopener noreferrer"
+              <DemoLoginButton
+                variant="link"
+                size="small"
+                showFeatures={false}
                 className="flex items-center space-x-1 text-sysora-mint hover:text-sysora-midnight transition-colors font-medium"
-              >
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z"/>
-                </svg>
-                <span>Demo</span>
-              </a>
+              />
               <button
                 onClick={openLoginModal}
                 className="text-sysora-midnight hover:text-sysora-mint transition-colors font-medium"
@@ -142,18 +138,14 @@ const LandingPageEN = () => {
           >
             Contact
           </a>
-          <a
-            href="/hotel-demo"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center space-x-2 text-sysora-mint hover:text-sysora-midnight transition-colors font-medium py-2"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z"/>
-            </svg>
-            <span>Watch Demo</span>
-          </a>
+          <div onClick={() => setIsMobileMenuOpen(false)}>
+            <DemoLoginButton
+              variant="link"
+              size="small"
+              showFeatures={false}
+              className="flex items-center space-x-2 text-sysora-mint hover:text-sysora-midnight transition-colors font-medium py-2"
+            />
+          </div>
           <div className="pt-3 border-t border-gray-200 space-y-3">
             <button
               onClick={() => {

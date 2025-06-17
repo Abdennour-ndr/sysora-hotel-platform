@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Play, X, Eye, Sparkles, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import DemoLoginButton from './demo/DemoLoginButton';
 
 const StickyDemoButton = () => {
   const { language } = useLanguage();
@@ -62,8 +63,50 @@ const StickyDemoButton = () => {
 
   const t = translations[language] || translations.en;
 
-  const handleDemoClick = () => {
-    window.open('/hotel-demo', '_blank');
+  const handleDemoClick = async () => {
+    try {
+      console.log('🎭 Starting demo login from StickyDemoButton...');
+
+      // Call demo login API
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/auth/demo-login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        console.log('✅ Demo login successful:', data.data);
+
+        // Store authentication data directly in localStorage
+        localStorage.setItem('sysora_token', data.data.token);
+        localStorage.setItem('sysora_user', JSON.stringify(data.data.user));
+        localStorage.setItem('sysora_hotel', JSON.stringify(data.data.hotel));
+
+        // Show success message
+        window.showToast && window.showToast(
+          'مرحباً بك في الحساب التجريبي! جميع الميزات متاحة للاستكشاف.',
+          'success'
+        );
+
+        // Redirect to dashboard
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 500);
+
+      } else {
+        throw new Error(data.error || 'فشل في الدخول للحساب التجريبي');
+      }
+
+    } catch (error) {
+      console.error('❌ Demo login error:', error);
+      window.showToast && window.showToast(
+        error.message || 'فشل في الدخول للحساب التجريبي. يرجى المحاولة مرة أخرى.',
+        'error'
+      );
+    }
   };
 
   const handleDismiss = () => {
@@ -93,32 +136,15 @@ const StickyDemoButton = () => {
           isExpanded ? 'w-64' : 'w-16'
         }`}>
           
-          {/* Compact View */}
-          <button
-            onClick={handleDemoClick}
-            className="w-full h-16 flex items-center justify-center hover:bg-sysora-mint/90 transition-colors duration-200"
-          >
-            {!isExpanded ? (
-              <div className="relative">
-                <Play className="w-6 h-6" fill="currentColor" />
-                <div className="absolute inset-0 bg-sysora-midnight/20 rounded-full animate-ping"></div>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-3 px-4 w-full">
-                <div className="relative flex-shrink-0">
-                  <Play className="w-5 h-5" fill="currentColor" />
-                  <div className="absolute inset-0 bg-sysora-midnight/20 rounded-full animate-ping"></div>
-                </div>
-                
-                <div className="flex-1 text-left">
-                  <div className="text-sm font-bold">{t.expandedText}</div>
-                  <div className="text-xs opacity-80">{t.subtitle}</div>
-                </div>
-                
-                <ArrowRight className="w-4 h-4 flex-shrink-0" />
-              </div>
-            )}
-          </button>
+          {/* Demo Login Button */}
+          <div className="w-full h-16 flex items-center justify-center">
+            <DemoLoginButton
+              variant="primary"
+              size={isExpanded ? "medium" : "small"}
+              showFeatures={false}
+              className="w-full h-full flex items-center justify-center hover:bg-sysora-mint/90 transition-colors duration-200"
+            />
+          </div>
           
           {/* Pulse Animation */}
           <div className="absolute inset-0 bg-sysora-mint/30 rounded-l-2xl animate-ping opacity-20"></div>

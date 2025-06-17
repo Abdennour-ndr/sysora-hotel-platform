@@ -1,6 +1,7 @@
 import React from 'react';
 import AnimatedCounter from '../AnimatedCounter';
 import DemoTeaser from '../DemoTeaser';
+import DemoLoginButton from '../demo/DemoLoginButton';
 import { PLATFORM_STATS } from '../../constants/promotions';
 
 const HeroSectionAR = ({ onGetStarted }) => {
@@ -35,33 +36,33 @@ const HeroSectionAR = ({ onGetStarted }) => {
               >
                 ابدأ مجاناً
               </button>
-              <button
-                onClick={() => window.open('/hotel-demo', '_blank')}
-                className="btn-secondary text-lg px-8 py-4 bg-white hover:bg-gray-100 text-sysora-midnight border border-white rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl font-semibold"
-              >
-                شاهد العرض التوضيحي
-              </button>
+              <DemoLoginButton
+                variant="secondary"
+                size="large"
+                showFeatures={false}
+                className="text-lg px-8 py-4 bg-white hover:bg-gray-100 text-sysora-midnight border border-white rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl font-semibold"
+              />
             </div>
 
-            {/* Enhanced Stats */}
+            {/* Beta Stats */}
             <div className="grid grid-cols-3 gap-8 pt-8 border-t border-white/20">
               <div className="text-center">
-                <div className="text-2xl lg:text-3xl font-bold text-sysora-mint">
-                  <AnimatedCounter end={PLATFORM_STATS.hotels.value} duration={2500} />{PLATFORM_STATS.hotels.suffix}
+                <div className="text-lg lg:text-xl font-bold text-sysora-mint">
+                  Beta
                 </div>
-                <div className="text-sm text-gray-300">فندق</div>
+                <div className="text-sm text-gray-300">شركاء التجربة</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl lg:text-3xl font-bold text-sysora-mint">
-                  <AnimatedCounter end={PLATFORM_STATS.bookings.value} duration={3000} />{PLATFORM_STATS.bookings.suffix}
+                <div className="text-lg lg:text-xl font-bold text-sysora-mint">
+                  نشطة
                 </div>
-                <div className="text-sm text-gray-300">حجز</div>
+                <div className="text-sm text-gray-300">اختبارات يومية</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl lg:text-3xl font-bold text-sysora-mint">
+                <div className="text-lg lg:text-xl font-bold text-sysora-mint">
                   <AnimatedCounter end={PLATFORM_STATS.uptime.value} duration={3500} decimals={1} />{PLATFORM_STATS.uptime.suffix}
                 </div>
-                <div className="text-sm text-gray-300">وقت التشغيل</div>
+                <div className="text-sm text-gray-300">استقرار النظام</div>
               </div>
             </div>
           </div>
