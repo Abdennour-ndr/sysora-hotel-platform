@@ -128,7 +128,7 @@ const WorkspaceLoginModal = ({ isOpen, onClose, onSwitchToSignup }) => {
         localStorage.setItem('sysora_hotel', JSON.stringify(data.data.hotel))
         localStorage.setItem('sysora_user', JSON.stringify(data.data.user))
 
-        // Close modal and redirect
+        // Close modal and redirect to dashboard (now modern by default)
         onClose()
         window.location.href = `/dashboard?subdomain=${formData.subdomain}`
       } else {

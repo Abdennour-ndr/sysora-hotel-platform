@@ -6,6 +6,8 @@ import ModernLandingPage from './pages/landing/ModernLandingPage'
 import ModernSignInPage from './pages/auth/ModernSignInPage'
 import ModernSignUpPage from './pages/auth/ModernSignUpPage'
 import Dashboard from './pages/Dashboard'
+import ManagerDashboard from './pages/ManagerDashboard'
+import ModernManagerDashboard from './pages/ModernManagerDashboard'
 import AdminDashboardWrapper from './components/AdminDashboardWrapper'
 import AdminLogin from './pages/AdminLogin'
 import PricingPage from './pages/PricingPage'
@@ -38,7 +40,27 @@ function App() {
               <Route path="/pricing" element={<PricingPage />} />
               <Route path="/dashboard" element={
                 <ThemeProvider>
+                  <ModernManagerDashboard />
+                </ThemeProvider>
+              } />
+              <Route path="/manager" element={
+                <ThemeProvider>
+                  <ModernManagerDashboard />
+                </ThemeProvider>
+              } />
+              <Route path="/modern" element={
+                <ThemeProvider>
+                  <ModernManagerDashboard />
+                </ThemeProvider>
+              } />
+              <Route path="/legacy" element={
+                <ThemeProvider>
                   <Dashboard />
+                </ThemeProvider>
+              } />
+              <Route path="/legacy-manager" element={
+                <ThemeProvider>
+                  <ManagerDashboard />
                 </ThemeProvider>
               } />
               <Route path="/admin" element={

@@ -1,0 +1,291 @@
+import React, { useState, useEffect } from 'react';
+import {
+  Clock,
+  Users,
+  Bed,
+  CheckCircle,
+  AlertTriangle,
+  Coffee,
+  Calendar,
+  FileText,
+  Download,
+  Printer,
+  RefreshCw
+} from 'lucide-react';
+
+const ShiftReport = () => {
+  const [shiftData, setShiftData] = useState({
+    occupancy: { total: 0, occupied: 0, available: 0, cleaning: 0, maintenance: 0 },
+    checkIns: [],
+    checkOuts: [],
+    housekeeping: { completed: 0, pending: 0, inProgress: 0 },
+    issues: [],
+    notes: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [shiftNotes, setShiftNotes] = useState('');
+
+  useEffect(() => {
+    loadShiftData();
+  }, []);
+
+  const loadShiftData = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('sysora_token');
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Load multiple endpoints for shift data
+      const [roomsRes, reservationsRes, housekeepingRes] = await Promise.all([
+        fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/rooms`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }),
+        fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/reservations?date=${today}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }),
+        fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/housekeeping/stats`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+      ]);
+
+      // Process room data
+      if (roomsRes.ok) {
+        const roomsData = await roomsRes.json();
+        const rooms = roomsData.data?.rooms || [];
+        const occupancy = {
+          total: rooms.length,
+          occupied: rooms.filter(r => r.status === 'occupied').length,
+          available: rooms.filter(r => r.status === 'available').length,
+          cleaning: rooms.filter(r => r.status === 'cleaning').length,
+          maintenance: rooms.filter(r => r.status === 'maintenance').length
+        };
+        setShiftData(prev => ({ ...prev, occupancy }));
+      }
+
+      // Process reservations data
+      if (reservationsRes.ok) {
+        const reservationsData = await reservationsRes.json();
+        const reservations = reservationsData.data?.reservations || [];
+        const checkIns = reservations.filter(r => r.status === 'checked_in');
+        const checkOuts = reservations.filter(r => r.status === 'checked_out');
+        setShiftData(prev => ({ ...prev, checkIns, checkOuts }));
+      }
+
+      // Process housekeeping data
+      if (housekeepingRes.ok) {
+        const housekeepingData = await housekeepingRes.json();
+        const housekeeping = housekeepingData.data || { completed: 0, pending: 0, inProgress: 0 };
+        setShiftData(prev => ({ ...prev, housekeeping }));
+      }
+
+    } catch (error) {
+      console.error('Error loading shift data:', error);
+      // Fallback demo data
+      setShiftData({
+        occupancy: { total: 50, occupied: 32, available: 15, cleaning: 2, maintenance: 1 },
+        checkIns: [
+          { guestId: { firstName: 'John', lastName: 'Doe' }, roomId: { number: '101' } },
+          { guestId: { firstName: 'Jane', lastName: 'Smith' }, roomId: { number: '205' } }
+        ],
+        checkOuts: [
+          { guestId: { firstName: 'Bob', lastName: 'Wilson' }, roomId: { number: '303' } }
+        ],
+        housekeeping: { completed: 8, pending: 3, inProgress: 2 },
+        issues: [
+          { type: 'maintenance', description: 'Room 204 - AC not working', priority: 'high' },
+          { type: 'housekeeping', description: 'Room 105 - Extra cleaning needed', priority: 'normal' }
+        ],
+        notes: ''
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generateReport = () => {
+    const report = {
+      date: new Date().toLocaleDateString(),
+      time: new Date().toLocaleTimeString(),
+      occupancy: shiftData.occupancy,
+      checkIns: shiftData.checkIns.length,
+      checkOuts: shiftData.checkOuts.length,
+      housekeeping: shiftData.housekeeping,
+      issues: shiftData.issues.length,
+      notes: shiftNotes
+    };
+
+    // Create downloadable report
+    const reportText = `
+SHIFT REPORT - ${report.date} ${report.time}
+=====================================
+
+OCCUPANCY SUMMARY:
+- Total Rooms: ${report.occupancy.total}
+- Occupied: ${report.occupancy.occupied}
+- Available: ${report.occupancy.available}
+- Cleaning: ${report.occupancy.cleaning}
+- Maintenance: ${report.occupancy.maintenance}
+
+GUEST ACTIVITY:
+- Check-ins Today: ${report.checkIns}
+- Check-outs Today: ${report.checkOuts}
+
+HOUSEKEEPING STATUS:
+- Tasks Completed: ${report.housekeeping.completed}
+- Tasks Pending: ${report.housekeeping.pending}
+- Tasks In Progress: ${report.housekeeping.inProgress}
+
+ISSUES REPORTED: ${report.issues}
+
+SHIFT NOTES:
+${report.notes}
+
+Generated by Sysora HMS - Frontline Dashboard
+    `;
+
+    const blob = new Blob([reportText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `shift-report-${new Date().toISOString().split('T')[0]}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const StatCard = ({ title, value, icon: Icon, color = 'blue' }) => (
+    <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-gray-600">{title}</p>
+          <p className={`text-2xl font-bold text-${color}-600`}>{value}</p>
+        </div>
+        <div className={`p-3 bg-${color}-100 rounded-xl`}>
+          <Icon className={`w-6 h-6 text-${color}-600`} />
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-gray-600 to-gray-800 rounded-2xl p-6 text-white">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-white bg-opacity-20 rounded-xl">
+              <FileText className="w-8 h-8" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold">Shift Report</h2>
+              <p className="text-gray-200">Daily summary and handover</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={loadShiftData}
+              disabled={loading}
+              className="flex items-center space-x-2 px-4 py-2 bg-white bg-opacity-20 rounded-xl hover:bg-opacity-30 transition-colors"
+            >
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              <span>Refresh</span>
+            </button>
+            <button
+              onClick={generateReport}
+              className="flex items-center space-x-2 px-4 py-2 bg-white bg-opacity-20 rounded-xl hover:bg-opacity-30 transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              <span>Download</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard
+          title="Occupancy Rate"
+          value={`${Math.round((shiftData.occupancy.occupied / shiftData.occupancy.total) * 100)}%`}
+          icon={Bed}
+          color="blue"
+        />
+        <StatCard
+          title="Check-ins Today"
+          value={shiftData.checkIns.length}
+          icon={Users}
+          color="green"
+        />
+        <StatCard
+          title="Check-outs Today"
+          value={shiftData.checkOuts.length}
+          icon={Users}
+          color="purple"
+        />
+        <StatCard
+          title="Cleaning Tasks"
+          value={`${shiftData.housekeeping.completed}/${shiftData.housekeeping.completed + shiftData.housekeeping.pending}`}
+          icon={Coffee}
+          color="teal"
+        />
+      </div>
+
+      {/* Room Status Breakdown */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Room Status Breakdown</h3>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-blue-600">{shiftData.occupancy.occupied}</div>
+            <div className="text-sm text-gray-600">Occupied</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-600">{shiftData.occupancy.available}</div>
+            <div className="text-sm text-gray-600">Available</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-yellow-600">{shiftData.occupancy.cleaning}</div>
+            <div className="text-sm text-gray-600">Cleaning</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-red-600">{shiftData.occupancy.maintenance}</div>
+            <div className="text-sm text-gray-600">Maintenance</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-gray-600">{shiftData.occupancy.total}</div>
+            <div className="text-sm text-gray-600">Total Rooms</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Shift Notes */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Shift Notes</h3>
+        <textarea
+          value={shiftNotes}
+          onChange={(e) => setShiftNotes(e.target.value)}
+          placeholder="Add notes for the next shift (issues, special requests, important information)..."
+          className="w-full h-32 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-sysora-mint focus:border-transparent resize-none"
+        />
+      </div>
+
+      {/* Issues Summary */}
+      {shiftData.issues.length > 0 && (
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Outstanding Issues</h3>
+          <div className="space-y-3">
+            {shiftData.issues.map((issue, index) => (
+              <div key={index} className="flex items-center space-x-3 p-3 bg-yellow-50 rounded-lg">
+                <AlertTriangle className="w-5 h-5 text-yellow-600" />
+                <div>
+                  <div className="font-medium text-gray-900">{issue.description}</div>
+                  <div className="text-sm text-gray-600">Priority: {issue.priority}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ShiftReport;

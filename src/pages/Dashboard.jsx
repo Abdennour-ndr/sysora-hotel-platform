@@ -6,17 +6,14 @@ import Services from '../components/services/Services';
 
 
 
-import AdvancedRoomManagement from '../components/rooms/AdvancedRoomManagement';
 import ReservationManagement from '../components/ReservationManagement';
-import GuestManagement from '../components/guests/GuestManagement';
-import AdvancedPaymentSystem from '../components/payments/AdvancedPaymentSystem';
-import AIInsights from '../components/AIInsights';
-import CMSHub from '../components/cms/CMSHub';
-import AnalyticsHub from '../components/analytics/AnalyticsHub';
-import SecurityHub from '../components/security/SecurityHub';
-import OptimizationHub from '../components/optimization/OptimizationHub';
 import EnhancedOverview from '../components/overview/EnhancedOverview';
 import AddGuestModal from '../components/AddGuestModal';
+import CheckInOutManager from '../components/frontline/CheckInOutManager';
+import ShiftReport from '../components/frontline/ShiftReport';
+import SimpleRoomStatus from '../components/frontline/SimpleRoomStatus';
+import SimpleGuestLookup from '../components/frontline/SimpleGuestLookup';
+import SimpleHousekeeping from '../components/frontline/SimpleHousekeeping';
 
 
 import { TrialBanner } from '../hooks/useFeatureAccess.jsx';
@@ -273,7 +270,7 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Tab Content */}
+        {/* Essential Tab Content Only */}
         {activeTab === 'overview' && (
           <EnhancedOverview
             onTabChange={setActiveTab}
@@ -281,58 +278,34 @@ const Dashboard = () => {
           />
         )}
 
-        {/* Rooms Tab */}
+        {/* Room Status Tab */}
         {activeTab === 'rooms' && (
-          <AdvancedRoomManagement />
+          <SimpleRoomStatus />
         )}
 
-        {/* Reservations Tab */}
+        {/* Check-In/Out Tab */}
+        {activeTab === 'checkin-checkout' && (
+          <CheckInOutManager />
+        )}
+
+        {/* Guest Lookup Tab */}
+        {activeTab === 'guests' && (
+          <SimpleGuestLookup onShowGuestModal={setShowGuestModal} />
+        )}
+
+        {/* Housekeeping Tab */}
+        {activeTab === 'housekeeping' && (
+          <SimpleHousekeeping />
+        )}
+
+        {/* Reservations Lookup Tab */}
         {activeTab === 'reservations' && (
           <ReservationManagement />
         )}
 
-        {/* Guests Tab */}
-        {activeTab === 'guests' && (
-          <GuestManagement />
-        )}
-
-        {/* Payments Tab */}
-        {activeTab === 'payments' && (
-          <AdvancedPaymentSystem />
-        )}
-
-        {/* AI Insights Tab */}
-        {activeTab === 'ai-insights' && (
-          <AIInsights />
-        )}
-
-        {/* Analytics Tab */}
-        {activeTab === 'analytics' && (
-          <AnalyticsHub />
-        )}
-
-        {/* Security Tab */}
-        {activeTab === 'security' && (
-          <SecurityHub />
-        )}
-
-        {/* Optimization Tab */}
-        {activeTab === 'optimization' && (
-          <OptimizationHub />
-        )}
-
-        {/* CMS Tab */}
-        {activeTab === 'cms' && (
-          <CMSHub />
-        )}
-
-        {/* Services Tab */}
-        {activeTab === 'services' && (
-          <Services
-            reservations={reservations}
-            rooms={rooms}
-            customers={customers}
-          />
+        {/* Shift Report Tab */}
+        {activeTab === 'shift-report' && (
+          <ShiftReport />
         )}
 
 

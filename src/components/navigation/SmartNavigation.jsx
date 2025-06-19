@@ -21,104 +21,89 @@ const SmartNavigation = ({ activeTab, onTabChange, userLevel = 'beginner' }) => 
   const [isAdvancedMode, setIsAdvancedMode] = useState(userLevel === 'professional');
   const [showAdvancedMenu, setShowAdvancedMenu] = useState(false);
 
-  // Basic tabs for beginners
-  const basicTabs = [
-    { 
-      id: 'overview', 
-      name: 'Dashboard', 
-      icon: Home, 
-      description: 'Main overview and quick stats',
+  // Essential tabs for frontline staff (≤7 features)
+  const essentialTabs = [
+    {
+      id: 'overview',
+      name: 'Dashboard',
+      icon: Home,
+      description: 'Daily overview and shift summary',
       color: 'text-blue-600',
       bgColor: 'bg-blue-50'
     },
-    { 
-      id: 'rooms', 
-      name: 'Rooms', 
-      icon: Bed, 
-      description: 'Manage hotel rooms and status',
+    {
+      id: 'rooms',
+      name: 'Room Status',
+      icon: Bed,
+      description: 'View and update room availability',
       color: 'text-green-600',
       bgColor: 'bg-green-50'
     },
-    { 
-      id: 'reservations', 
-      name: 'Bookings', 
-      icon: Calendar, 
-      description: 'Handle reservations and check-ins',
+    {
+      id: 'checkin-checkout',
+      name: 'Check-In/Out',
+      icon: Calendar,
+      description: 'Process guest arrivals and departures',
       color: 'text-purple-600',
       bgColor: 'bg-purple-50'
     },
-    { 
-      id: 'guests', 
-      name: 'Guests', 
-      icon: Users, 
-      description: 'Manage guest profiles and history',
+    {
+      id: 'guests',
+      name: 'Guest Lookup',
+      icon: Users,
+      description: 'Search guests and create profiles',
       color: 'text-orange-600',
       bgColor: 'bg-orange-50'
     },
-    { 
-      id: 'payments', 
-      name: 'Finance', 
-      icon: CreditCard, 
-      description: 'Payments, invoices and reports',
-      color: 'text-emerald-600',
-      bgColor: 'bg-emerald-50'
-    }
-  ];
-
-  // Advanced tabs for professionals
-  const advancedTabs = [
-    { 
-      id: 'analytics', 
-      name: 'Analytics', 
-      icon: BarChart3, 
-      description: 'Advanced reports and insights',
+    {
+      id: 'housekeeping',
+      name: 'Housekeeping',
+      icon: Coffee,
+      description: 'Daily cleaning tasks and assignments',
+      color: 'text-teal-600',
+      bgColor: 'bg-teal-50'
+    },
+    {
+      id: 'reservations',
+      name: 'Reservations',
+      icon: Calendar,
+      description: 'Lookup and manage bookings',
       color: 'text-indigo-600',
       bgColor: 'bg-indigo-50'
     },
-    { 
-      id: 'ai-insights', 
-      name: 'AI Tools', 
-      icon: Brain, 
-      description: 'Smart pricing and predictions',
-      color: 'text-pink-600',
-      bgColor: 'bg-pink-50'
-    },
-    { 
-      id: 'services', 
-      name: 'Services', 
-      icon: Coffee, 
-      description: 'Housekeeping and maintenance',
-      color: 'text-amber-600',
-      bgColor: 'bg-amber-50'
-    },
-    { 
-      id: 'settings', 
-      name: 'Settings', 
-      icon: Settings, 
-      description: 'System configuration',
+    {
+      id: 'shift-report',
+      name: 'Shift Report',
+      icon: BarChart3,
+      description: 'Daily summary and handover',
       color: 'text-gray-600',
       bgColor: 'bg-gray-50'
     }
   ];
 
-  // Get current tabs based on mode
-  const currentTabs = isAdvancedMode ? [...basicTabs, ...advancedTabs] : basicTabs;
+  // Removed non-essential features for frontline staff:
+  // - Advanced Analytics & Revenue Reports (defer: management-level)
+  // - AI Insights & Predictive Analytics (defer: not used daily)
+  // - Payment Processing & Billing (defer: separate POS systems)
+  // - Marketing Tools & Communications (defer: management function)
+  // - User Management & Permissions (defer: administrative)
+  // - Hotel Settings & Configuration (defer: management approval)
+  // - Integration Management (defer: IT responsibility)
+  // - Advanced Guest Loyalty Programs (defer: adds complexity)
+  // - Detailed Maintenance Tracking (defer: maintenance dept)
+  // - Multi-language Support (defer: interface complexity)
+
+  // Use only essential tabs for frontline staff
+  const currentTabs = essentialTabs;
 
   // Handle tab change
   const handleTabClick = (tabId) => {
     onTabChange(tabId);
-    setShowAdvancedMenu(false);
-  };
-
-  // Toggle advanced mode
-  const toggleAdvancedMode = () => {
-    setIsAdvancedMode(!isAdvancedMode);
-    setShowAdvancedMenu(false);
   };
 
   // Get tab info
   const getTabInfo = (tabId) => {
-    return [...basicTabs, ...advancedTabs].find(tab => tab.id === tabId);
+    return essentialTabs.find(tab => tab.id === tabId);
   };
 
   const activeTabInfo = getTabInfo(activeTab);
@@ -126,31 +111,16 @@ const SmartNavigation = ({ activeTab, onTabChange, userLevel = 'beginner' }) => 
   return (
     <div className="bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Mode Toggle */}
+        {/* Header */}
         <div className="flex items-center justify-between py-4 border-b border-gray-100">
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <Sparkles className="w-5 h-5 text-sysora-mint" />
-              <span className="text-sm font-medium text-gray-700">Interface Mode:</span>
+              <span className="text-sm font-medium text-gray-700">Frontline Staff Dashboard</span>
             </div>
-            <button
-              onClick={toggleAdvancedMode}
-              className="flex items-center space-x-3 px-4 py-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition-all duration-300 group"
-            >
-              <div className="flex items-center space-x-2">
-                {isAdvancedMode ? (
-                  <ToggleRight className="w-5 h-5 text-sysora-mint" />
-                ) : (
-                  <ToggleLeft className="w-5 h-5 text-gray-400" />
-                )}
-                <span className={`text-sm font-medium ${isAdvancedMode ? 'text-sysora-mint' : 'text-gray-600'}`}>
-                  {isAdvancedMode ? 'Professional' : 'Simplified'}
-                </span>
-              </div>
-              <div className="text-xs text-gray-500 group-hover:text-gray-700 transition-colors">
-                {isAdvancedMode ? 'All features' : 'Essential features'}
-              </div>
-            </button>
+            <div className="px-3 py-1 bg-sysora-mint bg-opacity-10 rounded-full">
+              <span className="text-xs font-medium text-sysora-mint">Essential Features Only</span>
+            </div>
           </div>
 
           {/* Active Tab Info */}
@@ -173,8 +143,7 @@ const SmartNavigation = ({ activeTab, onTabChange, userLevel = 'beginner' }) => 
             {currentTabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
-              const isAdvanced = advancedTabs.some(advTab => advTab.id === tab.id);
-              
+
               return (
                 <button
                   key={tab.id}
@@ -189,12 +158,7 @@ const SmartNavigation = ({ activeTab, onTabChange, userLevel = 'beginner' }) => 
                     isActive ? 'text-sysora-midnight' : 'text-gray-500 group-hover:text-gray-700'
                   }`} />
                   <span>{tab.name}</span>
-                  
-                  {/* Advanced Badge */}
-                  {isAdvanced && !isActive && (
-                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-sysora-mint rounded-full opacity-60"></div>
-                  )}
-                  
+
                   {/* Active Indicator */}
                   {isActive && (
                     <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-sysora-midnight rounded-full"></div>
@@ -204,26 +168,13 @@ const SmartNavigation = ({ activeTab, onTabChange, userLevel = 'beginner' }) => 
             })}
           </nav>
 
-          {/* Quick Actions */}
+          {/* Essential Actions Only */}
           <div className="hidden lg:flex items-center space-x-2">
-            <button className="btn-icon-secondary">
-              <TrendingUp className="w-4 h-4" />
-            </button>
-            <button className="btn-icon-primary">
-              <Settings className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Advanced Mode Indicator */}
-        {isAdvancedMode && (
-          <div className="py-2">
-            <div className="flex items-center space-x-2 text-xs text-sysora-mint">
-              <Brain className="w-3 h-3" />
-              <span>Professional mode active - All features unlocked</span>
+            <div className="text-xs text-gray-500">
+              7 Essential Features
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

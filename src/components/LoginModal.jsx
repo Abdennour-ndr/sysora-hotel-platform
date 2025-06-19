@@ -73,9 +73,9 @@ const LoginModal = ({ isOpen, onClose, onSwitchToSignup }) => {
         const loginSuccess = login(data.data)
 
         if (loginSuccess) {
-          // Close modal and redirect
+          // Close modal and redirect to dashboard (now modern by default)
           onClose()
-          redirectToDashboard()
+          window.location.href = '/dashboard'
         } else {
           throw new Error('فشل في حفظ بيانات المصادقة')
         }
